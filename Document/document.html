@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BLS International — Documents Checklist</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="icon" type="png" href="images.png">
+  <link rel="stylesheet" href="document.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <span id="langSwitcher" style="display:none;"></span>
+  <div class="header-main">
+    <div class="header-logo">
+      <div class="logo-mark">
+        <span class="logo-bls">BLS</span>
+        <span class="logo-intl">INTERNATIONAL</span>
+      </div>
+      <div class="logo-divider"></div>
+      <div class="logo-sub">
+        <span class="logo-sub-top" data-i18n="header.tagline.top">Official Visa Application Centre</span>
+        <span class="logo-sub-bot" data-i18n="header.tagline.bot">Spain Schengen &amp; National Visas — India</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="page-title-bar">
+  <i class="fa fa-file-alt"></i>
+  <span data-i18n="documents.page_title">Documents Checklist</span>
+  <div class="breadcrumb">
+    <a href="../login/login.html" data-i18n="nav.home">Home</a> &rsaquo; <span data-i18n="documents.page_title">Documents Checklist</span>
+  </div>
+</div>
+
+<div class="page-layout">
+
+  <nav class="side-nav">
+    <a href="../login/login.html"><i class="fa fa-home"></i> <span data-i18n="nav.home">Home</span></a>
+    <a href="../track/track.html"><i class="fa fa-search"></i> <span data-i18n="nav.track">Track Application</span></a>
+    <a href="../Visa application/index.html"><i class="fa fa-passport"></i> <span data-i18n="nav.visa">Visa Services</span></a>
+    <a href="../appointment/appointment.html"><i class="fa fa-calendar-check"></i> <span data-i18n="nav.appointments">Appointments</span></a>
+    <a href="documents.html" class="active"><i class="fa fa-file-alt"></i> <span data-i18n="nav.documents">Documents Checklist</span></a>
+  </nav>
+
+  <div class="main-content">
+<div class="track-outer">
+
+  <!-- LOOKUP -->
+  <div class="lookup-card">
+    <div class="lookup-icon"><i class="fa fa-folder-open"></i></div>
+    <h2 data-i18n="documents.lookup.title">Check Your Document Checklist</h2>
+    <p class="sub" data-i18n="documents.lookup.sub">Enter your Application Reference Number and Passport Number to view which documents are uploaded and which are still pending.</p>
+
+    <div class="lookup-form">
+      <div class="lookup-field">
+        <label for="refInput" data-i18n="track.lookup.ref_label">Application Reference Number</label>
+        <input type="text" id="refInput" placeholder="e.g. BLS-2026-XXXXXX" onkeydown="if(event.key==='Enter') document.getElementById('passportInput').focus();" />
+      </div>
+      <div class="lookup-field">
+        <label for="passportInput" data-i18n="track.lookup.passport_label">Passport Number</label>
+        <input type="text" id="passportInput" placeholder="e.g. A1234567" onkeydown="if(event.key==='Enter') lookupDocuments();" />
+      </div>
+      <button class="btn-gold" id="lookupBtn" onclick="lookupDocuments()"><i class="fa fa-magnifying-glass"></i> <span data-i18n="documents.lookup.btn">View Checklist</span></button>
+    </div>
+
+    <div class="lookup-msg error" id="lookupMsg"><i class="fa fa-circle-exclamation"></i><span id="lookupMsgText"></span></div>
+  </div>
+
+  <!-- RESULT -->
+  <div class="result-wrap" id="resultWrap">
+
+    <div class="result-summary">
+      <div class="rs-top">
+        <div>
+          <div class="rs-name" id="rsName">—</div>
+          <div class="rs-ref"><span data-i18n="track.result.ref">Reference No.</span> <strong id="rsRef">—</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="doc-summary-bar" id="docSummaryBar">
+      <span><i class="fa fa-circle-info"></i> <strong id="docUploadedCount">0</strong> of <strong id="docTotalCount">0</strong> <span data-i18n="documents.summary">documents uploaded</span></span>
+    </div>
+
+    <div class="timeline-card">
+      <h3><i class="fa fa-list-check"></i> <span data-i18n="documents.required.title">Required Documents</span></h3>
+      <p class="tc-sub" data-i18n="documents.required.sub">Click "Upload" to add a missing document. Files are stored securely and only accessible with your reference number and passport number.</p>
+      <div class="doc-list" id="docList"><!-- filled by JS --></div>
+    </div>
+
+    <div class="result-actions">
+      <button class="btn-outline-lite" onclick="resetLookup()"><i class="fa fa-rotate-left"></i> <span data-i18n="documents.actions.another">Check Another Application</span></button>
+    </div>
+
+  </div>
+
+</div>
+
+  </div><!-- /main-content -->
+</div><!-- /page-layout -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="i18n-shared.js"></script>
+<script src="doc-shared.js"></script>
+<script src="document.js"></script>
+</body>
+</html>

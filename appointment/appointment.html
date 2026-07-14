@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BLS International — Book Appointment</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="icon" type="png" href="images.png">
+  <link rel="stylesheet" href="appointment.css" />
+</head>
+<body>
+<header class="site-header">
+  <div class="header-main">
+    <div class="header-logo">
+      <div class="logo-mark">
+        <span class="logo-bls">BLS</span>
+        <span class="logo-intl">INTERNATIONAL</span>
+      </div>
+      <div class="logo-divider"></div>
+      <div class="logo-sub">
+        <span class="logo-sub-top" data-i18n="header.tagline.top">Official Visa Application Centre</span>
+        <span class="logo-sub-bot" data-i18n="header.tagline.bot">Spain Schengen &amp; National Visas — India</span>
+      </div>
+    </div>
+    <div class="header-badges">
+      <div class="hbadge"><i class="fa fa-shield-alt"></i><span data-i18n="header.badge.iso">ISO 9001 Certified</span></div>
+      <div class="hbadge"><i class="fa fa-award"></i><span data-i18n="header.badge.govt">Govt. Authorised</span></div>
+      <div class="hbadge"><i class="fa fa-lock"></i><span data-i18n="header.badge.secure">Secure &amp; Encrypted</span></div>
+      <span id="langSwitcher" style="display:flex; align-items:center;"></span>
+    </div>
+  </div>
+  <nav class="header-nav">
+    <div class="nav-inner">
+      <a href="../login/login.html"><i class="fa fa-home"></i> <span data-i18n="nav.home">Home</span></a>
+      <a href="../track/track.html"><i class="fa fa-search"></i> <span data-i18n="nav.track">Track Application</span></a>
+      <a href="../Visa application/index.html"><i class="fa fa-passport"></i> <span data-i18n="nav.visa">Visa Services</span></a>
+      <a href="appointment.html" class="active"><i class="fa fa-calendar-check"></i> <span data-i18n="nav.appointments">Appointments</span></a>
+      <a href="../documents/documents.html"><i class="fa fa-file-alt"></i> <span data-i18n="nav.documents">Documents Checklist</span></a>
+      <a href="#"><i class="fa fa-envelope"></i> <span data-i18n="nav.contact">Contact Us</span></a>
+    </div>
+  </nav>
+</header>
+
+<div class="page-title-bar">
+  <i class="fa fa-calendar-check"></i>
+  <span data-i18n="appt.page_title">Book Appointment</span>
+  <div class="breadcrumb">
+    <a href="../login/login.html" data-i18n="nav.home">Home</a> &rsaquo; <span data-i18n="appt.page_title">Book Appointment</span>
+  </div>
+</div>
+
+<!-- ACCESS GUARD -->
+<div class="access-guard" id="accessGuard">
+  <!-- NOT LOGGED IN -->
+  <div class="guard-card" id="guardNotLoggedIn">
+    <div class="guard-icon"><i class="fa fa-lock"></i></div>
+    <h2 data-i18n="appt.guard.login_required">Login Required</h2>
+    <p data-i18n="appt.guard.login_required_sub">You must register and log in before booking an appointment. Your registration details will be auto-filled automatically.</p>
+    <div class="guard-btns">
+      <a href="../Visa application/index.html" class="btn-gold"><i class="fa fa-user-plus"></i> <span data-i18n="appt.guard.register_now">Register Now</span></a>
+      <a href="../login/login.html" class="btn-outline"><i class="fa fa-sign-in-alt"></i> <span data-i18n="appt.guard.login">Login</span></a>
+    </div>
+  </div>
+  <!-- LOGGED IN BUT NO REGISTRATION -->
+  <div class="guard-card" id="guardNotRegistered" style="display:none;">
+    <div class="guard-icon" style="color:#e74c3c;"><i class="fa fa-file-alt"></i></div>
+    <h2 style="color:#e74c3c;" data-i18n="appt.guard.reg_required">Registration Required</h2>
+    <p style="color:#777;">
+      ⚠️ <strong data-i18n="appt.guard.not_allowed">Appointment booking is not allowed</strong> <span data-i18n="appt.guard.not_allowed_sub">without completing the visa registration form first.</span><br><br>
+      <span data-i18n="appt.guard.fill_first">Please fill your registration form completely before booking an appointment. Your details will be auto-filled in the appointment form.</span>
+    </p>
+    <div style="background:#fff5f5;border:1px solid #fde0e0;border-radius:8px;padding:14px 18px;margin:16px 0;font-size:12px;color:#c0392b;text-align:left;">
+      <i class="fa fa-info-circle"></i> &nbsp;<span data-i18n="appt.guard.logged_in_as">You are logged in as</span> <strong id="guardEmail">—</strong> <span data-i18n="appt.guard.not_completed">but have not completed the registration form.</span>
+    </div>
+    <div class="guard-btns">
+      <a href="../Visa application/index.html" class="btn-gold"><i class="fa fa-edit"></i> <span data-i18n="appt.guard.fill_form">Fill Registration Form</span></a>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="appt-outer" id="apptMain" style="display:none;">
+
+  <!-- Steps -->
+  <div class="steps-bar">
+    <div class="step-item">
+      <div class="step-circle active" id="sc1"><i class="fa fa-id-card"></i></div>
+      <div class="step-label active" id="sl1" data-i18n="appt.step.details">Your Details</div>
+    </div>
+    <div class="step-line" id="line1"></div>
+    <div class="step-item">
+      <div class="step-circle" id="sc2">2</div>
+      <div class="step-label" id="sl2" data-i18n="appt.step.slot">Select Slot</div>
+    </div>
+    <div class="step-line" id="line2"></div>
+    <div class="step-item">
+      <div class="step-circle" id="sc3">3</div>
+      <div class="step-label" id="sl3" data-i18n="appt.step.confirm">Confirm</div>
+    </div>
+    <div class="step-line" id="line3"></div>
+    <div class="step-item">
+      <div class="step-circle" id="sc4">4</div>
+      <div class="step-label" id="sl4" data-i18n="appt.step.done">Done</div>
+    </div>
+  </div>
+
+  <!-- PANEL 1: Details -->
+  <div class="panel active" id="panel1">
+    <div class="appt-card">
+      <div class="appt-card-header">
+        <i class="fa fa-id-card hicon"></i>
+        <div>
+          <h2 data-i18n="appt.details.title">Appointment Details</h2>
+          <p data-i18n="appt.details.sub">Your details have been auto-filled from your registration. Review and proceed.</p>
+        </div>
+      </div>
+      <div class="appt-card-body">
+        <div class="autofill-notice" id="autofillNotice" style="display:none;">
+          <i class="fa fa-check-circle"></i>
+          <span id="autofillMsg" data-i18n="appt.autofill_msg">Details auto-filled from your registration.</span>
+        </div>
+        <div class="alert alert-error" id="formAlert"><i class="fa fa-exclamation-circle"></i><span id="formAlertMsg" data-i18n="appt.fix_errors">Please fix the errors.</span></div>
+
+        <div class="section-label"><i class="fa fa-user"></i> <span data-i18n="visa.section.personal">Personal Information</span></div>
+        <div class="row">
+          <div class="field">
+            <label><span data-i18n="appt.field.full_name">Full Name</span> <span class="req">*</span></label>
+            <input type="text" id="af_name" placeholder="As on passport" data-i18n-placeholder="visa.ph.as_on_passport" />
+            <span class="err-msg" id="af_name_err"></span>
+          </div>
+          <div class="field">
+            <label><span data-i18n="visa.field.email">Email Address</span> <span class="req">*</span></label>
+            <input type="email" id="af_email" placeholder="For confirmation letter" data-i18n-placeholder="appt.ph.confirmation_email" />
+            <span class="err-msg" id="af_email_err"></span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label><span data-i18n="visa.field.mobile">Mobile Number</span> <span class="req">*</span></label>
+            <input type="tel" id="af_mobile" placeholder="+91 XXXXX XXXXX" />
+            <span class="err-msg" id="af_mobile_err"></span>
+          </div>
+          <div class="field">
+            <label><span data-i18n="visa.field.passport_number">Passport Number</span> <span class="req">*</span></label>
+            <input type="text" id="af_passport" placeholder="e.g. A1234567" style="text-transform:uppercase;" />
+            <span class="err-msg" id="af_passport_err"></span>
+          </div>
+        </div>
+
+        <div class="section-label"><i class="fa fa-passport"></i> <span data-i18n="appt.section.passport_validity">Passport Validity</span></div>
+        <div class="row">
+          <div class="field">
+            <label><span data-i18n="appt.field.issue_date">Issue Date</span> <span class="req">*</span></label>
+            <input type="date" id="af_issue" />
+            <span class="err-msg" id="af_issue_err"></span>
+          </div>
+          <div class="field">
+            <label><span data-i18n="appt.field.expiry_date">Expiry Date</span> <span class="req">*</span></label>
+            <input type="date" id="af_expiry" />
+            <span class="err-msg" id="af_expiry_err"></span>
+          </div>
+        </div>
+
+        <!-- DOCUMENT CHECKLIST — only shown if this applicant still has pending documents.
+             Filled from document_types_config (Supabase) — see doc-shared.js / appointment.js -->
+        <div id="apptDocSection" style="display:none;">
+          <div class="section-label"><i class="fa fa-upload"></i> <span data-i18n="appt.section.pending_docs">Pending Documents</span> <span style="font-size:10px;color:#bbb;font-weight:500;text-transform:none;" data-i18n="appt.section.pending_docs_sub">(not yet uploaded on your application)</span></div>
+          <div class="row" id="apptDocUploads"></div>
+        </div>
+
+        <div class="section-label"><i class="fa fa-plane"></i> <span data-i18n="appt.section.visit_details">Visit Details</span></div>
+        <div class="row">
+          <div class="field">
+            <label><span data-i18n="appt.field.purpose">Purpose of Visit</span> <span class="req">*</span></label>
+            <select id="af_purpose">
+              <option value="">— Select —</option>
+              <option>Tourist</option>
+              <option>Business</option>
+              <option>Family Visit</option>
+              <option>Medical</option>
+              <option>Study / Education</option>
+              <option>Work / Employment</option>
+              <option>Transit</option>
+              <option>Other</option>
+            </select>
+            <span class="err-msg" id="af_purpose_err"></span>
+          </div>
+          <div class="field">
+            <label><span data-i18n="visa.field.destination">Destination Country</span> <span class="req">*</span></label>
+            <select id="af_country" onchange="onCountryChange()">
+              <option value="">— Loading countries… —</option>
+            </select>
+            <span class="err-msg" id="af_country_err"></span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label><span data-i18n="visa.field.state">State / Region</span> <span class="req">*</span></label>
+            <select id="af_state" disabled onchange="onStateChange()">
+              <option value="">— Select country first —</option>
+            </select>
+            <span class="err-msg" id="af_state_err"></span>
+          </div>
+          <div class="field">
+            <label><span data-i18n="appt.field.centre">Appointment Centre (City)</span> <span class="req">*</span></label>
+            <select id="af_centre" disabled>
+              <option value="">— Select state first —</option>
+            </select>
+            <span class="err-msg" id="af_centre_err"></span>
+          </div>
+        </div>
+
+        <div class="section-label"><i class="fa fa-star"></i> <span data-i18n="appt.section.vas">Value Added Services</span> <span style="font-size:10px;color:#bbb;font-weight:500;text-transform:none;" data-i18n="appt.section.optional">(optional)</span></div>
+        <div class="vas-note"><i class="fa fa-lock"></i> <span data-i18n="appt.vas.note">Prices are fixed by BLS International. Selected services will be sent to the centre along with your appointment request.</span></div>
+        <div class="vas-add-row">
+          <div class="field" style="flex:2; min-width:220px;">
+            <label data-i18n="appt.vas.select_service">Select Service</label>
+            <select id="vasServiceSelect" onchange="onVasServiceChange()">
+              <option value="">— Select a service —</option>
+            </select>
+          </div>
+          <div class="field vas-price-field">
+            <label data-i18n="appt.vas.price">Price (₹)</label>
+            <input type="text" id="vasPriceField" placeholder="—" readonly tabindex="-1" style="background:#f0f0f0;color:#555;font-weight:700;cursor:not-allowed;" />
+          </div>
+          <div class="field vas-qty-field">
+            <label data-i18n="appt.vas.qty">Qty</label>
+            <input type="number" id="vasQtyField" value="1" min="1" max="20" />
+          </div>
+          <button type="button" class="btn-add-vas" onclick="addVasService()"><i class="fa fa-plus"></i> <span data-i18n="appt.vas.add">Add</span></button>
+        </div>
+        <table class="vas-table" id="vasTable">
+          <thead><tr><th>#</th><th data-i18n="appt.vas.service">Service</th><th style="text-align:center;" data-i18n="appt.vas.qty">Qty</th><th style="text-align:right;" data-i18n="appt.vas.price">Price (₹)</th><th style="text-align:right;" data-i18n="appt.vas.subtotal">Subtotal (₹)</th><th style="width:50px;"></th></tr></thead>
+          <tbody id="vasTbody">
+            <tr class="vas-empty-row" id="vasEmptyRow"><td colspan="6"><i class="fa fa-hand-point-up"></i> <span data-i18n="appt.vas.none_added">No services added yet</span></td></tr>
+          </tbody>
+          <tfoot>
+            <tr class="vas-total-row" id="vasTotalRow" style="display:none;">
+              <td colspan="4" style="text-align:right;" class="vas-total-label" data-i18n="appt.vas.est_total">Estimated Total</td>
+              <td style="text-align:right;" id="vasTotalAmt">₹0.00</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <div class="row full">
+          <div class="field">
+            <label data-i18n="appt.field.notes">Additional Notes (optional)</label>
+            <textarea id="af_notes" placeholder="Any special requirements..."></textarea>
+          </div>
+        </div>
+
+        <div class="btn-footer">
+          <a href="../login/login.html" class="btn-back"><i class="fa fa-arrow-left"></i> <span data-i18n="appt.btn.back">Back</span></a>
+          <button class="btn-primary" onclick="goToSlots()"><i class="fa fa-calendar-alt"></i> <span data-i18n="appt.btn.choose_datetime">Choose Date &amp; Time</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL 2: Date & Slot -->
+  <div class="panel" id="panel2">
+    <div class="appt-card">
+      <div class="appt-card-header">
+        <i class="fa fa-calendar-alt hicon"></i>
+        <div>
+          <h2 data-i18n="appt.slot.title">Select Date &amp; Time Slot</h2>
+          <p id="slotHeaderText" data-i18n="appt.slot.loading">Loading settings...</p>
+        </div>
+      </div>
+      <div class="appt-card-body">
+
+        <div class="section-label"><i class="fa fa-calendar"></i> <span data-i18n="appt.slot.select_date">Select a Date</span></div>
+        <div class="cal-header">
+          <button class="cal-nav-btn" id="calPrev" onclick="changeMonth(-1)"><i class="fa fa-chevron-left"></i></button>
+          <h3 id="calTitle">—</h3>
+          <button class="cal-nav-btn" id="calNext" onclick="changeMonth(1)"><i class="fa fa-chevron-right"></i></button>
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+        <div class="cal-legend">
+          <div class="cal-leg-item"><div class="cal-leg-dot available"></div> <span data-i18n="appt.cal.available">Available</span></div>
+          <div class="cal-leg-item"><div class="cal-leg-dot selected"></div> <span data-i18n="appt.cal.selected">Selected</span></div>
+          <div class="cal-leg-item"><div class="cal-leg-dot holiday"></div> <span data-i18n="appt.cal.holiday">Holiday</span></div>
+          <div class="cal-leg-item"><div class="cal-leg-dot full"></div> <span data-i18n="appt.cal.full">Fully Booked</span></div>
+          <div class="cal-leg-item"><div class="cal-leg-dot weekend"></div> <span data-i18n="appt.cal.weekend">Weekend / Closed</span></div>
+        </div>
+
+        <!-- SLOT SECTION -->
+        <div class="slot-section" id="slotSection">
+          <div class="section-label"><i class="fa fa-clock"></i> <span data-i18n="appt.slot.available_slots">Available Time Slots</span> — <span id="slotDateLabel"></span></div>
+          <div class="counter-info">
+            <i class="fa fa-info-circle"></i>
+            <span id="counterInfoText" data-i18n="appt.slot.loading_settings">Loading appointment settings...</span>
+          </div>
+          <div class="slot-legend">
+            <div class="slot-leg"><div class="slot-leg-dot av"></div> <span data-i18n="appt.cal.available">Available</span></div>
+            <div class="slot-leg"><div class="slot-leg-dot sel"></div> <span data-i18n="appt.cal.selected">Selected</span></div>
+            <div class="slot-leg"><div class="slot-leg-dot bk"></div> <span data-i18n="appt.slot.booked">Booked</span></div>
+          </div>
+          <div class="slot-grid" id="slotGrid"></div>
+        </div>
+
+        <div class="sel-banner" id="selBanner">
+          <i class="fa fa-check-circle"></i>
+          <div>
+            <strong id="bannerText">—</strong><br>
+            <span id="bannerCounter" data-i18n="appt.slot.counter_dash">Counter —</span>
+          </div>
+        </div>
+
+        <div class="btn-footer">
+          <button class="btn-back" onclick="goBack(1)"><i class="fa fa-arrow-left"></i> <span data-i18n="appt.btn.back">Back</span></button>
+          <button class="btn-primary" id="btnConfirm" onclick="goToConfirm()" disabled><i class="fa fa-check"></i> <span data-i18n="appt.btn.confirm_slot">Confirm Slot</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL 3: Confirm -->
+  <div class="panel" id="panel3">
+    <div class="appt-card">
+      <div class="appt-card-header">
+        <i class="fa fa-clipboard-check hicon"></i>
+        <div>
+          <h2 data-i18n="appt.confirm.title">Confirm Your Appointment</h2>
+          <p data-i18n="appt.confirm.sub">Review all details. A confirmation letter will be emailed to you.</p>
+        </div>
+      </div>
+      <div class="appt-card-body">
+        <div class="section-label"><i class="fa fa-user"></i> <span data-i18n="appt.confirm.applicant_details">Applicant Details</span></div>
+        <div class="confirm-box"><div class="confirm-grid" id="confirmGrid"></div></div>
+
+        <div class="section-label"><i class="fa fa-calendar-check"></i> <span data-i18n="appt.confirm.slot_title">Appointment Slot</span></div>
+        <div class="confirm-box"><div class="confirm-grid" id="slotConfirmGrid"></div></div>
+
+        <div class="email-notice">
+          <i class="fa fa-envelope"></i>
+          <span><span data-i18n="appt.confirm.email_notice1">Confirmation letter will be emailed to</span> <strong id="confirmEmail">—</strong> <span data-i18n="appt.confirm.email_notice2">immediately after booking with all details. Use it to reschedule if needed.</span></span>
+        </div>
+        <div class="alert alert-error" id="submitAlert"><i class="fa fa-exclamation-circle"></i><span id="submitAlertMsg" data-i18n="appt.confirm.submit_failed">Submission failed.</span></div>
+        <div class="btn-footer">
+          <button class="btn-back" onclick="goBack(2)"><i class="fa fa-arrow-left"></i> <span data-i18n="appt.btn.back">Back</span></button>
+          <button class="btn-primary" id="btnSubmit" onclick="submitAppointment()"><i class="fa fa-paper-plane"></i> <span data-i18n="appt.btn.book_send">Book &amp; Send Confirmation Email</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL 4: Done -->
+  <div class="panel" id="panel4">
+    <div class="appt-card">
+      <div class="appt-card-body">
+        <div class="success-panel">
+          <div class="s-icon"><i class="fa fa-check-circle"></i></div>
+          <h2 data-i18n="appt.done.title">Appointment Booked!</h2>
+          <p data-i18n="appt.done.sub">Your appointment is confirmed. A detailed confirmation letter has been sent to your email.</p>
+          <div class="ref-box">
+            <div class="ref-label" data-i18n="appt.done.ref_label">Reference Number</div>
+            <div class="ref-val" id="finalRef">—</div>
+          </div>
+          <div class="email-notice" style="text-align:left;max-width:500px;margin:16px auto;">
+            <i class="fa fa-envelope"></i>
+            <span><span data-i18n="appt.done.sent_to">Sent to</span> <strong id="finalEmail">—</strong>. <span data-i18n="appt.done.check_spam">Check inbox &amp; spam.</span><br><strong data-i18n="appt.done.need_change">Need to change slot?</strong> <span data-i18n="appt.done.use_link">Use the link in the email or visit this page.</span></span>
+          </div>
+          <div class="confirm-box" style="max-width:600px;margin:20px auto 0;text-align:left;">
+            <div class="confirm-grid" id="finalGrid"></div>
+          </div>
+          <div style="margin-top:24px;">
+            <a href="../login/login.html" class="btn-gold" style="text-decoration:none;"><i class="fa fa-home"></i> <span data-i18n="appt.done.back_home">Back to Home</span></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="i18n-shared.js"></script>
+<script src="doc-shared.js"></script>
+<script src="appointment.js"></script>
+</body>
+</html>

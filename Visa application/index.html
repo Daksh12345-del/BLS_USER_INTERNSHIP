@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Global Visa Services — Visa Application</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="icon" type="png" href="images.png"
+</head>
+<body>
+
+  <!-- ════════════════════════════════════════════
+       HEADER
+  ════════════════════════════════════════════ -->
+  <header class="site-header">
+
+    <span id="langSwitcher" style="display:none;"></span>
+
+    <!-- Main header band -->
+    <div class="header-main">
+      <div class="header-logo">
+        <div class="logo-mark">
+          <!-- <span class="logo-bls">GVS</span>
+          <span class="logo-intl">INTERNATIONAL</span> -->
+        </div>
+        <div class="logo-divider"></div>
+        <div class="logo-sub">
+          <span class="logo-sub-top" data-i18n="header.tagline.top">Official Visa Application Centre</span>
+          <span class="logo-sub-bot" data-i18n="header.tagline.bot">Spain Schengen &amp; National Visas — India</span>
+        </div>
+      </div>
+      <div class="header-badges">
+        <div class="hbadge"><i class="fa fa-shield-alt"></i><span data-i18n="header.badge.iso">ISO 9001 Certified</span></div>
+        <div class="hbadge"><i class="fa fa-award"></i><span data-i18n="header.badge.govt">Verified Partner</span></div>
+        <div class="hbadge"><i class="fa fa-lock"></i><span data-i18n="header.badge.secure">Secure &amp; Encrypted</span></div>
+      </div>
+    </div>
+
+  </header>
+
+  <!-- Spacer: keeps content below the fixed header. Height set by JS below. -->
+  <div class="header-spacer" id="headerSpacer"></div>
+
+  <!-- Page breadcrumb -->
+  <div class="page-title-bar">
+    <i class="fa fa-file-alt"></i>
+    <span data-i18n="visa.page_title">Visa Application Form</span>
+    <div class="breadcrumb">
+      <a href="../login/login.html" data-i18n="nav.home">Home</a> &rsaquo; <a href="../login/login.html" data-i18n="nav.visa">Services</a> &rsaquo; <span data-i18n="visa.breadcrumb.apply">Apply Visa</span>
+    </div>
+  </div>
+
+  <!-- LEFT SIDEBAR NAV + MAIN CONTENT WRAPPER -->
+  <div class="page-layout">
+
+    <!-- LEFT SIDEBAR NAV -->
+    <nav class="side-nav">
+      <a href="../login/login.html"><i class="fa fa-home"></i><span data-i18n="nav.home">Home</span></a>
+      <a href="../track/track.html"><i class="fa fa-search"></i><span data-i18n="nav.track">Track Application</span></a>
+      <a href="index.html" class="active"><i class="fa fa-passport"></i><span data-i18n="nav.visa">Visa Services</span></a>
+      <a href="../appointment/appointment.html" id="navBookAppointment" style="display:none; background:linear-gradient(135deg,#C8A951,#a8843a); color:#fff; border-left:4px solid #fff; font-weight:700; animation:pulse-gold 1.5s ease-in-out infinite;"><i class="fa fa-calendar-plus"></i><span data-i18n="nav.appointments">Book Appointment</span></a>
+      <a href="../documents/documents.html"><i class="fa fa-file-alt"></i><span data-i18n="nav.documents">Documents Checklist</span></a>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+
+  <!-- ════════════════════════════════════════════
+       SUPABASE CONFIG BANNER (remove after setup)
+  ════════════════════════════════════════════ -->
+  <div class="config-banner" id="configBanner">
+    <i class="fa fa-exclamation-triangle"></i>
+    <strong>Supabase not configured.</strong> Open <code>script.js</code> and replace
+    <code>YOUR_SUPABASE_URL</code> and <code>YOUR_SUPABASE_ANON_KEY</code> with your project credentials.
+    <button onclick="document.getElementById('configBanner').style.display='none'">✕</button>
+  </div>
+
+  <!-- ════════════════════════════════════════════
+       FORM AREA
+  ════════════════════════════════════════════ -->
+  <div class="form-outer">
+
+    <!-- STAY SELECTOR -->
+    <div class="stay-selector" id="staySelector">
+      <div class="stay-selector-title">
+        <i class="fa fa-passport"></i> <span data-i18n="visa.stay.title">Select Your Visa Stay Type</span>
+      </div>
+      <p class="stay-selector-sub" data-i18n="visa.stay.sub">Please choose the type of stay before filling the application form.</p>
+      <div class="stay-cards">
+
+        <div class="stay-card" id="cardShort" onclick="selectStay('short')">
+          <div class="stay-card-badge" data-i18n="visa.stay.short.badge">Type C — Schengen</div>
+          <div class="stay-icon"><i class="fa fa-plane-departure"></i></div>
+          <h3 data-i18n="visa.stay.short.title">Short Stay</h3>
+          <div class="stay-duration" data-i18n="visa.stay.short.duration">Up to <strong>180 days</strong></div>
+          <ul class="stay-points">
+            <li><i class="fa fa-check"></i> <span data-i18n="visa.stay.short.pt1">Tourist &amp; Business visits</span></li>
+            <li><i class="fa fa-check"></i> <span data-i18n="visa.stay.short.pt2">Max 90 days in any 180-day window</span></li>
+            <li><i class="fa fa-check"></i> <span data-i18n="visa.stay.short.pt3">Single / Multiple entry</span></li>
+            <li><i class="fa fa-check"></i> <span data-i18n="visa.stay.short.pt4">Transit through Spain</span></li>
+            <li><i class="fa fa-check"></i> <span data-i18n="visa.stay.short.pt5">Family visits (short-term)</span></li>
+          </ul>
+          <div class="stay-note"><i class="fa fa-info-circle"></i> <span data-i18n="visa.stay.short.note">Cannot work or study under this visa</span></div>
+          <button class="stay-select-btn" data-i18n="visa.stay.short.btn">Select Short Stay</button>
+        </div>
+
+        <div class="stay-card" id="cardLong" onclick="selectStay('long')">
+          <div class="stay-card-badge badge-long" data-i18n="visa.stay.long.badge">Type D — National</div>
+          <div class="stay-icon"><i class="fa fa-home"></i></div>
+          <h3 data-i18n="visa.stay.long.title">Long Stay</h3>
+          <div class="stay-duration" data-i18n="visa.stay.long.duration">More than <strong>180 days</strong></div>
+          <ul class="stay-points">
+            <li><i class="fa fa-check"></i> <span data-i18n="visa.stay.long.pt1">Work &amp; Employment visa</span></li>
+            <li><i class="fa fa-check"></i> <span data-i18n="visa.stay.long.pt2">Student / Study visa</span></li>
+            <li><i class="fa fa-check"></i> <span data-i18n="visa.stay.long.pt3">Family reunification</span></li>
+            <li><i class="fa fa-check"></i> <span data-i18n="visa.stay.long.pt4">Residence permit</span></li>
+            <li><i class="fa fa-check"></i> <span data-i18n="visa.stay.long.pt5">Highly-qualified professional</span></li>
+          </ul>
+          <div class="stay-note"><i class="fa fa-info-circle"></i> <span data-i18n="visa.stay.long.note">Additional documents required</span></div>
+          <button class="stay-select-btn btn-long" data-i18n="visa.stay.long.btn">Select Long Stay</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- FORM CARD -->
+    <div class="form-card" id="formCard" style="display:none;">
+
+      <div class="form-header">
+        <i class="fa fa-passport hicon"></i>
+        <div>
+          <h2 id="formTitle" data-i18n="visa.form.title">Spain Visa Application</h2>
+          <p><span data-i18n="visa.form.note">Fill all required fields carefully. Fields marked</span> <strong style="color:#C8A951;">*</strong> <span data-i18n="visa.form.mandatory">are mandatory.</span></p>
+        </div>
+        <button class="change-stay-btn" onclick="changeStay()">
+          <i class="fa fa-exchange-alt"></i> <span data-i18n="visa.form.change_stay">Change Stay Type</span>
+        </button>
+      </div>
+
+      <!-- SECTION TRACKER — horizontal jump-nav, click = scroll + glow -->
+      <div class="section-tracker" id="sectionTracker">
+        <div class="tracker-item" data-target="sectionPersonal">
+          <span class="tracker-dot"><i class="fa fa-user"></i></span>
+          <span class="tracker-label" data-i18n="visa.section.personal">Personal Information</span>
+        </div>
+        <div class="tracker-line"></div>
+        <div class="tracker-item" data-target="sectionPassport">
+          <span class="tracker-dot"><i class="fa fa-id-card"></i></span>
+          <span class="tracker-label" data-i18n="visa.section.passport">Passport Details</span>
+        </div>
+        <div class="tracker-line"></div>
+        <div class="tracker-item" data-target="sectionTravel">
+          <span class="tracker-dot"><i class="fa fa-plane"></i></span>
+          <span class="tracker-label" data-i18n="visa.section.travel">Travel Information</span>
+        </div>
+        <div class="tracker-line"></div>
+        <div class="tracker-item" data-target="sectionDocuments">
+          <span class="tracker-dot"><i class="fa fa-upload"></i></span>
+          <span class="tracker-label" data-i18n="visa.section.documents">Document Upload</span>
+        </div>
+        <div class="tracker-line"></div>
+        <div class="tracker-item" data-target="sectionAccount">
+          <span class="tracker-dot"><i class="fa fa-key"></i></span>
+          <span class="tracker-label" data-i18n="visa.section.account">Create Password</span>
+        </div>
+        <div class="tracker-line"></div>
+        <div class="tracker-item" data-target="sectionDeclaration">
+          <span class="tracker-dot"><i class="fa fa-check-circle"></i></span>
+          <span class="tracker-label" data-i18n="visa.section.declaration">Declaration</span>
+        </div>
+      </div>
+
+      <div class="stay-tag-bar" id="stayTagBar">
+        <span class="stay-tag" id="stayTag">Short Stay — Type C (Schengen)</span>
+        <span class="stay-tag-rule" id="stayTagRule"></span>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+
+      <div class="form-body">
+
+        <!-- §1 PERSONAL -->
+        <div class="section-label" id="sectionPersonal"><i class="fa fa-user sicon"></i> <span data-i18n="visa.section.personal">Personal Information</span></div>
+
+        <div class="row">
+          <div class="field">
+            <label for="firstName"><span data-i18n="visa.field.first_name">First Name</span> <span class="req">*</span></label>
+            <input type="text" id="firstName" placeholder="As on passport" data-i18n-placeholder="visa.ph.as_on_passport" data-required />
+            <span class="err-msg"></span>
+          </div>
+          <div class="field">
+            <label for="lastName"><span data-i18n="visa.field.last_name">Last Name</span> <span class="req">*</span></label>
+            <input type="text" id="lastName" placeholder="As on passport" data-i18n-placeholder="visa.ph.as_on_passport" data-required />
+            <span class="err-msg"></span>
+          </div>
+        </div>
+
+        <div class="row three">
+          <div class="field">
+            <label for="dob"><span data-i18n="visa.field.dob">Date of Birth</span> <span class="req">*</span></label>
+            <input type="date" id="dob" data-required />
+            <span class="err-msg"></span>
+          </div>
+          <div class="field">
+            <label for="gender"><span data-i18n="visa.field.gender">Gender</span> <span class="req">*</span></label>
+            <select id="gender" data-required>
+              <option value="">Select</option>
+              <option>Male</option>
+              <option>Female</option>
+              <option>Other</option>
+            </select>
+            <span class="err-msg"></span>
+          </div>
+          <div class="field">
+            <label for="nationality"><span data-i18n="visa.field.nationality">Nationality</span> <span class="req">*</span></label>
+            <select id="nationality" data-required>
+              <option value="">Select</option>
+              <option value="Indian">Indian</option>
+              <option value="Bangladeshi">Bangladeshi</option>
+              <option value="Sri Lankan">Sri Lankan</option>
+              <option value="Nepali">Nepali</option>
+              <option value="Pakistani">Pakistani</option>
+              <option value="Afghan">Afghan</option>
+              <option value="Bhutanese">Bhutanese</option>
+              <option value="Maldivian">Maldivian</option>
+              <option value="Other">Other (specify below)</option>
+            </select>
+            <span class="err-msg"></span>
+          </div>
+        </div>
+
+        <div class="row" id="otherNationalityRow" style="display:none;">
+          <div class="field">
+            <label for="otherCountry"><span data-i18n="visa.field.other_country">Enter Your Country</span> <span class="req">*</span></label>
+            <input type="text" id="otherCountry" placeholder="e.g. Nigeria, Brazil, Egypt..." />
+            <span class="tip" data-i18n="visa.tip.other_country">Type your country — dial code will be set automatically.</span>
+            <span class="err-msg" id="otherCountryErr"></span>
+          </div>
+          <div class="field">
+            <label data-i18n="visa.field.detected_code">Detected Country Code</label>
+            <div class="code-display" id="otherCodeDisplay">
+              <i class="fa fa-globe"></i> <span id="otherCodeText" data-i18n="visa.field.enter_country_above">— enter country above —</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="email"><span data-i18n="visa.field.email">Email Address</span> <span class="req">*</span></label>
+            <div class="email-verify-wrap">
+              <input type="email" id="email" placeholder="yourname@email.com" data-required />
+              <button type="button" class="btn-verify-email" id="verifyEmailBtn" onclick="doSendRegOtp()">
+                <i class="fa fa-shield-halved"></i> <span data-i18n="visa.btn.verify">Verify</span>
+              </button>
+            </div>
+            <span class="err-msg"></span>
+            <div class="email-verified-badge" id="emailVerifiedBadge">
+              <i class="fa fa-check-circle"></i> <span data-i18n="visa.email_verified">Email verified</span>
+            </div>
+          </div>
+          <div class="field">
+            <label for="mobileNumber"><span data-i18n="visa.field.mobile">Mobile Number</span> <span class="req">*</span></label>
+            <div class="mobile-wrap">
+              <div class="dial-code-box" id="dialCodeBox">
+                <span id="dialCodeFlag">🌍</span>
+                <span id="dialCodeValue">+__</span>
+              </div>
+              <input type="tel" id="mobileNumber" placeholder="Enter number" data-i18n-placeholder="visa.ph.enter_number" data-required />
+            </div>
+            <span class="tip" id="mobileTip" data-i18n="visa.tip.mobile">Select nationality to auto-fill country code.</span>
+            <span class="err-msg" id="mobileErr"></span>
+          </div>
+        </div>
+
+        <!-- Email OTP Verification Panel (anti-bot) -->
+        <div class="otp-verify-panel" id="otpVerifyPanel">
+          <div class="otp-verify-header">
+            <i class="fa fa-envelope-open-text"></i>
+            <span><span data-i18n="visa.otp.hint1">Enter the 6-digit code sent to</span> <strong id="otpVerifyEmailDisplay">—</strong>. <span data-i18n="visa.otp.hint2">This verifies you're a real applicant, not a bot.</span></span>
+          </div>
+          <div class="reg-otp-alert" id="regOtpError">
+            <i class="fa fa-exclamation-circle"></i>
+            <span id="regOtpErrorMsg" data-i18n="visa.otp.incorrect">Incorrect OTP. Please try again.</span>
+          </div>
+          <div class="otp-verify-row">
+            <input class="otp-verify-box" maxlength="1" inputmode="numeric" pattern="[0-9]" id="regOtp0" />
+            <input class="otp-verify-box" maxlength="1" inputmode="numeric" pattern="[0-9]" id="regOtp1" />
+            <input class="otp-verify-box" maxlength="1" inputmode="numeric" pattern="[0-9]" id="regOtp2" />
+            <input class="otp-verify-box" maxlength="1" inputmode="numeric" pattern="[0-9]" id="regOtp3" />
+            <input class="otp-verify-box" maxlength="1" inputmode="numeric" pattern="[0-9]" id="regOtp4" />
+            <input class="otp-verify-box" maxlength="1" inputmode="numeric" pattern="[0-9]" id="regOtp5" />
+          </div>
+          <div class="otp-verify-actions">
+            <button type="button" class="btn-verify-otp" id="verifyRegOtpBtn" onclick="doVerifyRegOtp()">
+              <i class="fa fa-check-circle"></i> <span data-i18n="visa.otp.verify_btn">Verify Code</span>
+            </button>
+            <span class="reg-resend-note" id="regResendTimer"><span data-i18n="visa.otp.resend_in">Resend code in</span> <strong id="regResendCount">60</strong>s</span>
+            <button type="button" class="reg-resend-link" id="regResendBtn" onclick="doSendRegOtp(true)" data-i18n="visa.otp.resend_btn">Resend Code</button>
+          </div>
+        </div>
+
+
+        <!-- Locked overlay shown until email is verified -->
+        <div class="locked-overlay" id="lockedOverlay">
+          <i class="fa fa-lock"></i>
+          <span data-i18n="visa.locked.hint">Please verify your email address above to unlock the rest of the application form.</span>
+        </div>
+
+        <div class="locked-section" id="lockedSection">
+
+        <!-- §2 PASSPORT -->
+        <div class="section-label" id="sectionPassport"><i class="fa fa-id-card sicon"></i> <span data-i18n="visa.section.passport">Passport Details</span></div>
+
+        <!-- ── NEW FEATURE: Passport Auto-fill via OCR (client-side, free) ──
+             Passport ki photo/PDF upload karke neeche wale fields
+             (Passport Number, DOB, Expiry, Issue Date, Place of Issue)
+             automatically bharne ki koshish karta hai. MRZ-based fields
+             (Number/DOB/Expiry) checksum-verified hote hai; Issue
+             Date/Place of Issue best-effort hai — inhe hamesha verify
+             kar lena chahiye. -->
+        <div class="passport-autofill-box" id="passportAutofillBox">
+          <div class="passport-autofill-row">
+            <input type="file" id="passportAutofillFile" accept="image/*,application/pdf" />
+            <button type="button" class="btn-passport-autofill" id="passportAutofillBtn">
+              <i class="fa fa-magic"></i> Auto-fill from Passport
+            </button>
+          </div>
+          <div id="passportAutofillProgress" class="passport-autofill-progress" style="display:none;"></div>
+          <div id="passportAutofillStatus" class="passport-autofill-status"></div>
+        </div>
+
+        <div class="row three">
+          <div class="field">
+            <label for="passportNumber"><span data-i18n="visa.field.passport_number">Passport Number</span> <span class="req">*</span></label>
+            <input type="text" id="passportNumber" placeholder="e.g. A1234567" data-required />
+            <span class="tip" data-i18n="visa.tip.passport_format">Format: 1 letter + 7 digits</span>
+            <span class="err-msg"></span>
+          </div>
+          <div class="field">
+            <label for="passportIssue"><span data-i18n="visa.field.passport_issue">Date of Issue</span> <span class="req">*</span></label>
+            <input type="date" id="passportIssue" data-required />
+            <span class="tip" id="issueTip"></span>
+            <span class="err-msg" id="passportIssueErr"></span>
+          </div>
+          <div class="field">
+            <label for="passportExpiry"><span data-i18n="visa.field.passport_expiry">Date of Expiry</span> <span class="req">*</span></label>
+            <input type="date" id="passportExpiry" data-required />
+            <span class="tip" id="expiryTip"></span>
+            <span class="err-msg" id="passportExpiryErr"></span>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="placeOfIssue"><span data-i18n="visa.field.place_of_issue">Place of Issue</span> <span class="req">*</span></label>
+            <input type="text" id="placeOfIssue" placeholder="City, Country" data-i18n-placeholder="visa.ph.city_country" data-required />
+            <span class="err-msg"></span>
+          </div>
+          <div class="field">
+            <label for="issuingAuth" data-i18n="visa.field.issuing_auth">Issuing Authority</label>
+            <input type="text" id="issuingAuth" placeholder="e.g. Passport Seva Kendra" />
+          </div>
+        </div>
+
+        <!-- §3 TRAVEL -->
+        <div class="section-label" id="sectionTravel"><i class="fa fa-plane sicon"></i> <span data-i18n="visa.section.travel">Travel Information</span></div>
+
+        <div class="row">
+          <div class="field">
+            <label for="visaType"><span data-i18n="visa.field.visa_type">Visa Type</span> <span class="req">*</span></label>
+            <select id="visaType" data-required>
+              <option value="">Select visa type</option>
+            </select>
+            <span class="err-msg"></span>
+          </div>
+          <div class="field">
+            <label for="destinationCountry"><span data-i18n="visa.field.destination">Destination Country</span> <span class="req">*</span></label>
+            <select id="destinationCountry" data-required onchange="onDestCountryChange()">
+              <option value="">— Loading countries… —</option>
+            </select>
+            <span class="err-msg" id="destinationCountryErr"></span>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="appointmentState"><span data-i18n="visa.field.state">State / Region</span> <span class="req">*</span></label>
+            <select id="appointmentState" data-required disabled onchange="onDestStateChange()">
+              <option value="">— Select country first —</option>
+            </select>
+            <span class="err-msg" id="appointmentStateErr"></span>
+          </div>
+          <div class="field">
+            <label for="appointmentCity"><span data-i18n="visa.field.city">City of Appointment</span> <span class="req">*</span></label>
+            <select id="appointmentCity" data-required disabled>
+              <option value="">— Select state first —</option>
+            </select>
+            <span class="err-msg" id="appointmentCityErr"></span>
+          </div>
+        </div>
+
+        <div class="row three">
+          <div class="field">
+            <label for="travelDate"><span data-i18n="visa.field.departure">Departure Date</span> <span class="req">*</span></label>
+            <input type="date" id="travelDate" data-required />
+            <span class="err-msg" id="travelDateErr"></span>
+          </div>
+          <div class="field">
+            <label for="returnDate"><span data-i18n="visa.field.return">Return Date</span> <span class="req">*</span></label>
+            <input type="date" id="returnDate" data-required />
+            <span class="err-msg" id="returnDateErr"></span>
+          </div>
+          <div class="field">
+            <label data-i18n="visa.field.duration">Duration of Stay</label>
+            <div class="duration-display" id="durationDisplay">
+              <i class="fa fa-calendar-alt"></i>
+              <span id="durationText" data-i18n="visa.field.select_dates_above">— select dates above —</span>
+            </div>
+            <input type="hidden" id="duration" />
+            <span class="tip" id="durationTip"></span>
+            <span class="err-msg" id="durationErr"></span>
+          </div>
+        </div>
+
+        <!-- Long Stay Extra -->
+        <div id="longStayExtra" style="display:none;">
+          <div class="row">
+            <div class="field">
+              <label for="employerName"><span data-i18n="visa.field.employer">Employer / Institution Name</span> <span class="req">*</span></label>
+              <input type="text" id="employerName" placeholder="Company or University name" />
+              <span class="err-msg"></span>
+            </div>
+            <div class="field">
+              <label for="sponsorName" data-i18n="visa.field.sponsor">Sponsor Name (if applicable)</label>
+              <input type="text" id="sponsorName" placeholder="Full name of sponsor in Spain" />
+            </div>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label for="addressInSpain"><span data-i18n="visa.field.address_spain">Address in Spain</span> <span class="req">*</span></label>
+              <input type="text" id="addressInSpain" placeholder="Street, City, Postal Code" />
+              <span class="err-msg"></span>
+            </div>
+            <div class="field">
+              <label for="longStayPurpose"><span data-i18n="visa.field.specific_purpose">Specific Purpose</span> <span class="req">*</span></label>
+              <select id="longStayPurpose">
+                <option value="">Select purpose</option>
+                <option>Work / Employment</option>
+                <option>Study / Education</option>
+                <option>Family Reunification</option>
+                <option>Residence Permit</option>
+                <option>Highly Qualified Professional</option>
+                <option>Entrepreneur / Self-employed</option>
+              </select>
+              <span class="err-msg"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="row full">
+          <div class="field">
+            <label for="purposeOfVisit" data-i18n="visa.field.purpose_notes">Purpose of Visit / Additional Notes</label>
+            <textarea id="purposeOfVisit" placeholder="Briefly describe your purpose of visit..."></textarea>
+          </div>
+        </div>
+
+        <!-- §4 DOCUMENTS -->
+        <div class="section-label" id="sectionDocuments"><i class="fa fa-upload sicon"></i> <span data-i18n="visa.section.documents">Document Upload</span></div>
+        <div class="row" id="dynamicDocUploads">
+          <!-- Filled dynamically from document_types_config (Supabase) — see doc-shared.js / script.js -->
+          <div class="field"><p style="font-size:12px;color:#999;"><i class="fa fa-spinner fa-spin"></i> Loading document checklist...</p></div>
+        </div>
+
+        <!-- §5 ACCOUNT SETUP -->
+        <div class="section-label" id="sectionAccount"><i class="fa fa-key sicon"></i> <span data-i18n="visa.section.account">Create Account Password</span></div>
+        <p style="font-size:12px;color:#888;margin-bottom:14px;display:flex;align-items:center;gap:7px;">
+          <i class="fa fa-info-circle" style="color:#C8A951;"></i>
+          <span data-i18n="visa.account.note">Set a password to log in and track your application anytime.</span>
+        </p>
+        <div class="row">
+          <div class="field">
+            <label for="regPassword"><span data-i18n="visa.field.password">Password</span> <span class="req">*</span></label>
+            <div style="position:relative;">
+              <input type="password" id="regPassword" placeholder="Min. 8 characters" data-i18n-placeholder="visa.ph.min_chars" data-required autocomplete="new-password"
+                style="padding-right:38px;" />
+              <button type="button" onclick="toggleRegPass('regPassword','eyeReg1')"
+                style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#999;font-size:13px;padding:0;">
+                <i class="fa fa-eye" id="eyeReg1"></i>
+              </button>
+            </div>
+            <span class="tip" data-i18n="visa.tip.password">At least 8 characters, mix letters &amp; numbers recommended.</span>
+            <span class="err-msg" id="regPasswordErr"></span>
+          </div>
+          <div class="field">
+            <label for="regPasswordConfirm"><span data-i18n="visa.field.confirm_password">Confirm Password</span> <span class="req">*</span></label>
+            <div style="position:relative;">
+              <input type="password" id="regPasswordConfirm" placeholder="Re-enter password" data-i18n-placeholder="visa.ph.reenter_password" data-required autocomplete="new-password"
+                style="padding-right:38px;" />
+              <button type="button" onclick="toggleRegPass('regPasswordConfirm','eyeReg2')"
+                style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#999;font-size:13px;padding:0;">
+                <i class="fa fa-eye" id="eyeReg2"></i>
+              </button>
+            </div>
+            <span class="err-msg" id="regPasswordConfirmErr"></span>
+          </div>
+        </div>
+
+        <!-- §6 DECLARATION -->
+        <div class="section-label" id="sectionDeclaration"><i class="fa fa-check-circle sicon"></i> <span data-i18n="visa.section.declaration">Declaration</span></div>
+
+        <div class="field">
+          <label for="regCaptchaInput"><span data-i18n="visa.field.security_code">Security Code</span> <span class="req">*</span></label>
+          <div class="captcha-row">
+            <div class="captcha-canvas-wrap">
+              <canvas id="regCaptchaCanvas" width="120" height="46"></canvas>
+            </div>
+            <button type="button" class="captcha-refresh" onclick="refreshCaptcha('reg')" title="Get a new code">
+              <i class="fa fa-rotate"></i>
+            </button>
+            <input type="text" id="regCaptchaInput" placeholder="Enter code above" data-i18n-placeholder="visa.ph.enter_code_above" maxlength="6" autocomplete="off" />
+          </div>
+          <span class="err-msg" id="regCaptchaErr"></span>
+        </div>
+
+        <div class="checkbox-row">
+          <input type="checkbox" id="tnc" />
+          <label for="tnc"><span data-i18n="visa.tnc.pre">I confirm that all information provided is accurate and complete. I agree to the</span>
+            <!-- <a href="#" data-i18n="visa.tnc.terms">Terms &amp; Conditions</a> <span data-i18n="visa.tnc.and">and</span> <a href="#" data-i18n="visa.tnc.privacy">Privacy Policy</a> <span data-i18n="visa.tnc.post">of Global Visa Services.</span></label> -->
+        </div>
+        
+        <div class="checkbox-row">
+          <input type="checkbox" id="consent" />
+          <label for="consent" data-i18n="visa.consent">I consent to the processing of my personal data for visa application processing in accordance with applicable data protection laws.</label>
+        </div>
+        <div class="checkbox-row">
+          <input type="checkbox" id="authentic" />
+          <label for="authentic" data-i18n="visa.authentic">I declare that all uploaded documents are genuine. I understand that providing false information may result in visa rejection and legal action.</label>
+        </div>
+
+        <!-- Success Banner -->
+        <div class="success-banner" id="successBanner">
+          <i class="fa fa-check-circle sicon"></i>
+          <div>
+            <strong data-i18n="visa.success.title">Application Submitted Successfully!</strong>
+            <!-- <p><span data-i18n="visa.success.ref_pre">Your reference number is</span> <span class="ref" id="refNumber">GVS-2026-XXXXXX</span>.<br> -->
+            <span data-i18n="visa.success.account_note">Your account has been created. You can now book your appointment.</span></p>
+            <div style="margin-top:12px;">
+              <a href="../appointment/appointment.html" class="btn-gold" style="text-decoration:none; display:inline-flex; align-items:center; gap:8px; width:auto; padding:9px 20px;">
+                <i class="fa fa-calendar-plus"></i> <span data-i18n="nav.appointments">Book Appointment</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Error Banner -->
+        <div class="error-banner" id="errorBanner" style="display:none;">
+          <i class="fa fa-exclamation-circle sicon"></i>
+          <div>
+            <strong data-i18n="visa.error.title">Submission Failed</strong>
+            <p id="errorMsg" data-i18n="visa.error.default">Could not save your application. Please try again.</p>
+          </div>
+        </div>
+
+        </div><!-- /lockedSection -->
+
+      </div>
+
+      <div class="form-footer">
+        <div class="info-note">
+          <i class="fa fa-lock lock-icon"></i> 256-bit SSL · Powered by Supabase
+        </div>
+        <div class="btn-group">
+          <button class="btn-reset" onclick="resetForm()">
+            <i class="fa fa-undo"></i> <span data-i18n="visa.btn.reset">Reset</span>
+          </button>
+          <button class="btn-submit" id="submitBtn" onclick="submitForm()">
+            <i class="fa fa-paper-plane"></i> <span data-i18n="visa.btn.submit">Submit Application</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+    </div><!-- /main-content -->
+  </div><!-- /page-layout -->
+
+  <!-- ════ SUPABASE JS SDK (CDN) ════ -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="i18n-shared.js"></script>
+  <script src="docshared.js"></script>
+
+  <!-- ════ NEW: Passport Auto-fill (OCR) + Live Camera Face-Verify ════
+       Sab client-side/free hai — koi backend/server nahi chahiye.
+       Yeh script.js ke pehle load hone chahiye (libraries), script.js
+       khud independent rehta hai (kuch bhi edit nahi hua usme). ════ -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+  <script src="passport-ocr.js"></script>
+  <script src="face-verify.js"></script>
+
+  <script src="script.js"></script>
+
+  <!-- visa-enhancements.js script.js ke BAAD load hoti hai taaki
+       dynamicDocUploads container available ho, lekin yeh sirf apne
+       ALAG event listeners add karti hai — script.js ki kisi bhi cheez
+       ko touch/override nahi karti. -->
+  <script src="visa-enhancements.js"></script>
+
+  <!-- Keeps grey header truly fixed to top: measures real header height and
+       syncs it into --header-h so page content/spacer/side-nav never overlap
+       or leave a gap, on any screen size. -->
+  <script>
+    (function () {
+      function syncHeaderHeight() {
+        var header = document.querySelector('.site-header');
+        var spacer = document.getElementById('headerSpacer');
+        if (!header || !spacer) return;
+        var h = header.offsetHeight;
+        document.documentElement.style.setProperty('--header-h', h + 'px');
+      }
+      window.addEventListener('load', syncHeaderHeight);
+      window.addEventListener('resize', syncHeaderHeight);
+      document.addEventListener('DOMContentLoaded', syncHeaderHeight);
+      // Re-check shortly after load in case fonts/icons shift the height.
+      setTimeout(syncHeaderHeight, 300);
+    })();
+  </script>
+
+  <!-- SECTION TRACKER: click a step -> scroll to that section + glow it briefly.
+       Also auto-highlights the current step while the user scrolls (scroll-spy). -->
+  <script>
+    (function () {
+      var trackerItems = Array.prototype.slice.call(document.querySelectorAll('.tracker-item'));
+      if (!trackerItems.length) return;
+
+      function setActive(id) {
+        trackerItems.forEach(function (item) {
+          item.classList.toggle('active', item.getAttribute('data-target') === id);
+        });
+      }
+
+      function glowSection(labelEl) {
+        // Highlight the label itself plus every field/row up to (not including)
+        // the next .section-label, so the whole section content glows briefly.
+        var nodes = [labelEl];
+        var sib = labelEl.nextElementSibling;
+        while (sib && !sib.classList.contains('section-label')) {
+          nodes.push(sib);
+          sib = sib.nextElementSibling;
+        }
+        nodes.forEach(function (el) {
+          el.classList.remove('section-glow');
+          // force reflow so animation restarts if clicked again quickly
+          void el.offsetWidth;
+          el.classList.add('section-glow');
+        });
+        setTimeout(function () {
+          nodes.forEach(function (el) { el.classList.remove('section-glow'); });
+        }, 1500);
+      }
+
+      trackerItems.forEach(function (item) {
+        item.addEventListener('click', function () {
+          var id = item.getAttribute('data-target');
+          var target = document.getElementById(id);
+          if (!target) return;
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          setActive(id);
+          glowSection(target);
+        });
+      });
+
+      // Scroll-spy: keep the tracker in sync with whichever section is in view.
+      var sectionIds = trackerItems.map(function (item) { return item.getAttribute('data-target'); });
+      var sectionEls = sectionIds.map(function (id) { return document.getElementById(id); }).filter(Boolean);
+
+      if ('IntersectionObserver' in window && sectionEls.length) {
+        var headerH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) || 160;
+        var observer = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) setActive(entry.target.id);
+          });
+        }, { rootMargin: '-' + (headerH + 20) + 'px 0px -70% 0px', threshold: 0 });
+        sectionEls.forEach(function (el) { observer.observe(el); });
+      }
+    })();
+  </script>
+</body>
+</html>
