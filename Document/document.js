@@ -7,26 +7,7 @@
 
 function $(id) { return document.getElementById(id); }
 
-// ── SAFETY NET ──────────────────────────────────────────────
-// This file calls i18nT()/i18nInit()/i18nDateLocale() (defined in
-// i18n-shared.js). If that file fails to load for any reason (wrong path,
-// missing from the folder, network hiccup), those calls would throw
-// "is not defined" and break the whole page. These fallbacks make sure
-// that NEVER happens — worst case, translations just don't apply.
-if (typeof i18nT !== 'function') {
-  window.i18nT = function (key, fallback) { return fallback !== undefined ? fallback : key; };
-  console.warn('i18n-shared.js did not load — check it is in the same folder as this page. Falling back to English.');
-}
-if (typeof i18nDateLocale !== 'function') {
-  window.i18nDateLocale = function () { return 'en-IN'; };
-}
-if (typeof i18nInit !== 'function') {
-  window.i18nInit = function () { /* no-op fallback */ };
-}
 
-document.addEventListener('DOMContentLoaded', () => {
-  if (typeof i18nInit === 'function') i18nInit({ switcherEl: '#langSwitcher' });
-});
 
 let currentRef = null;
 let currentPassport = null;
@@ -53,8 +34,8 @@ window.lookupDocuments = async function () {
   const ref = $('refInput').value.trim().toUpperCase();
   const passport = $('passportInput').value.trim().toUpperCase();
 
-  if (!ref) { showLookupError(i18nT('track.err.no_ref', 'Please enter your Appointment Number.')); $('refInput').focus(); return; }
-  if (!passport) { showLookupError(i18nT('track.err.no_passport', 'Please enter your Passport Number.')); $('passportInput').focus(); return; }
+  if (!ref) { showLookupError('Please enter your Appointment Number.'); $('refInput').focus(); return; }
+  if (!passport) { showLookupError('Please enter your Passport Number.'); $('passportInput').focus(); return; }
 
   const btn = $('lookupBtn');
   btn.disabled = true;
@@ -62,7 +43,7 @@ window.lookupDocuments = async function () {
 
   try {
     const res = await fetch(
-      `/api/users/visa/documents/${encodeURIComponent(ref)}/${encodeURIComponent(passport)}`
+      `${apiUsersBase()}/visa/documents/${encodeURIComponent(ref)}/${encodeURIComponent(passport)}`
     );
     const result = await res.json();
 
@@ -71,7 +52,7 @@ window.lookupDocuments = async function () {
     const data = result.application;
 
     if (!data) {
-      showLookupError(i18nT('track.err.not_found', 'No appointment found. Please check your Appointment Number and Passport Number and try again.'));
+      showLookupError('No appointment found. Please check your Appointment Number and Passport Number and try again.');
       return;
     }
 
@@ -85,7 +66,7 @@ window.lookupDocuments = async function () {
     $('resultWrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
   } catch (err) {
     console.error('Document lookup error:', err);
-    showLookupError(i18nT('track.err.generic', 'Something went wrong while searching. Please try again in a moment.'));
+    showLookupError('Something went wrong while searching. Please try again in a moment.');
   } finally {
     btn.disabled = false;
     btn.innerHTML = '<i class="fa fa-magnifying-glass"></i> View Checklist';
@@ -132,11 +113,11 @@ async function renderChecklist() {
           ${dt.number_label ? `<input type="text" class="doc-number-input" id="rownum_${dt.key}" placeholder="${escDoc(dt.number_label)}" style="margin-top:8px; width:100%; max-width:220px; padding:7px 10px; border:1.5px solid #ddd; border-radius:5px; font-size:12.5px; font-family:inherit;" />` : ''}
         </div>
         <span class="doc-status-badge ${isUploaded ? 'ok' : 'missing'}">
-          <i class="fa ${isUploaded ? 'fa-check' : 'fa-triangle-exclamation'}"></i> ${isUploaded ? i18nT('documents.status.uploaded', 'Uploaded') : i18nT('documents.status.missing', 'Missing')}
+          <i class="fa ${isUploaded ? 'fa-check' : 'fa-triangle-exclamation'}"></i> ${isUploaded ? 'Uploaded' : 'Missing'}
         </span>
         <div class="doc-actions">
           <span class="file-input-wrap">
-            <button class="btn-gold" style="padding:8px 16px;"><i class="fa fa-upload"></i> ${isUploaded ? i18nT('documents.btn.replace', 'Replace') : i18nT('documents.btn.upload', 'Upload')}</button>
+            <button class="btn-gold" style="padding:8px 16px;"><i class="fa fa-upload"></i> ${isUploaded ? 'Replace' : 'Upload'}</button>
             <input type="file" accept="${escDoc(dt.accepted_formats || '')}" onchange="uploadDocument('${dt.key}', this)" />
           </span>
         </div>
@@ -175,7 +156,7 @@ window.uploadDocument = async function (docKey, inputEl) {
 function fmtDateTime(d) {
   if (!d) return '—';
   try {
-    return new Date(d).toLocaleDateString(i18nDateLocale(), { day: '2-digit', month: 'short', year: 'numeric' });
+    return new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
   } catch (e) { return d; }
 }
 function escDoc(s) {

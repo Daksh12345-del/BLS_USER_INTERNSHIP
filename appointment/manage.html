@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BLS International — Manage Appointments</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="icon" type="png" href="../images.png">
+  <link rel="stylesheet" href="appointment.css" />
+  <link rel="stylesheet" href="manage.css" />
+</head>
+<body>
+<header class="site-header">
+  <div class="header-main">
+    <div class="header-logo">
+      <div class="logo-mark logo-img-wrap">
+        <img src="../assets/bls-logo.png" alt="BLS International" class="logo-img">
+      </div>
+      <div class="logo-divider"></div>
+      <div class="logo-sub">
+        <span class="logo-sub-top">Official Visa Application Centre</span>
+        <span class="logo-sub-bot">Spain Schengen &amp; National Visas — India</span>
+      </div>
+    </div>
+    <div class="header-badges">
+      <div class="hbadge"><i class="fa fa-shield-alt"></i><span>ISO 9001 Certified</span></div>
+      <div class="hbadge"><i class="fa fa-award"></i><span>Govt. Authorised</span></div>
+      <div class="hbadge"><i class="fa fa-lock"></i><span>Secure &amp; Encrypted</span></div>
+    </div>
+  </div>
+</header>
+
+<div class="page-title-bar">
+  <i class="fa fa-list-check"></i>
+  <span>Manage Appointment</span>
+  <div class="breadcrumb">
+    <a href="../dashboard/dashboard.html">Home</a> &rsaquo; <span>Manage Appointment</span>
+  </div>
+</div>
+
+<div class="page-layout">
+
+  <!-- LEFT SIDEBAR NAV -->
+  <nav class="side-nav">
+    <a href="../dashboard/dashboard.html"><i class="fa fa-home"></i><span>Home</span></a>
+    <a href="../track/track.html"><i class="fa fa-search"></i><span>Track Application</span></a>
+    <a href="../Visa application/index.html"><i class="fa fa-passport"></i><span>Visa Services</span></a>
+    <a href="appointment.html"><i class="fa fa-calendar-check"></i><span>Appointments</span></a>
+    <a href="manage.html" class="active"><i class="fa fa-list-check"></i><span>Manage Appointment</span></a>
+    <a href="../Document/document.html"><i class="fa fa-file-alt"></i><span>Documents Checklist</span></a>
+  </nav>
+
+  <div class="main-content">
+
+<!-- ACCESS GUARD (not logged in) -->
+<div class="access-guard" id="accessGuard">
+  <div class="guard-card">
+    <div class="guard-icon"><i class="fa fa-lock"></i></div>
+    <h2>Login Required</h2>
+    <p>Please log in to view and manage your appointments.</p>
+    <div class="guard-btns">
+      <a href="../login/login.html" class="btn-outline"><i class="fa fa-sign-in-alt"></i> <span>Login</span></a>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="manage-outer" id="manageMain" style="display:none;">
+
+  <div class="manage-head">
+    <div>
+      <h1>Your Appointments</h1>
+      <p>One email can hold multiple appointments — book as many as you need, and cancel any you no longer need.</p>
+    </div>
+    <a href="appointment.html" class="btn-gold"><i class="fa fa-calendar-plus"></i> <span>Book New Appointment</span></a>
+  </div>
+
+  <!-- LOADING -->
+  <div class="manage-loading" id="manageLoading">
+    <i class="fa fa-spinner fa-spin"></i> <span>Loading your appointments…</span>
+  </div>
+
+  <!-- EMPTY STATE -->
+  <div class="manage-empty" id="manageEmpty" style="display:none;">
+    <i class="fa fa-calendar-xmark"></i>
+    <h3>No appointments yet</h3>
+    <p>You haven't booked any appointment yet.</p>
+    <a href="appointment.html" class="btn-gold"><i class="fa fa-calendar-plus"></i> <span>Book Your First Appointment</span></a>
+  </div>
+
+  <!-- LIST -->
+  <div class="appt-list" id="apptList"></div>
+
+</div>
+
+<!-- CANCEL CONFIRM MODAL -->
+<div class="cancel-modal-overlay" id="cancelModalOverlay">
+  <div class="cancel-modal">
+    <div class="cancel-modal-icon"><i class="fa fa-triangle-exclamation"></i></div>
+    <h3>Cancel this appointment?</h3>
+    <p>Reference <strong id="cancelRefText">—</strong> will be cancelled and its slot released. This can't be undone.</p>
+    <div class="cancel-modal-btns">
+      <button class="btn-outline" id="cancelModalNoBtn" type="button">Keep It</button>
+      <button class="btn-danger" id="cancelModalYesBtn" type="button"><i class="fa fa-ban"></i> <span>Yes, Cancel</span></button>
+    </div>
+  </div>
+</div>
+
+  </div><!-- /.main-content -->
+
+</div><!-- /.page-layout -->
+
+<script src="../shared/config.js"></script>
+<script src="manage.js"></script>
+</body>
+</html>

@@ -232,5 +232,57 @@ def test_visa_application_registration():
         driver.quit()
 
 
+# ────────────────────────────────────────────
+# NEGATIVE PATH: invalid email must be rejected before an OTP is sent.
+#
+# This does NOT need Mailinator or the full registration flow — it only
+# exercises the client-side check inside doSendRegOtp() (script.js),
+# which is supposed to reject a malformed email before ever calling
+# supabase.auth.signInWithOtp(). If that check is ever removed or
+# broken, this test is what would catch it (previously nothing did —
+# the only email-related test was the happy path in
+# test_visa_application_registration, which always used a valid,
+# freshly-generated address).
+# ────────────────────────────────────────────
+def test_visa_application_invalid_email_rejected():
+    driver = webdriver.Chrome()
+    wait = WebDriverWait(driver, 10)
+
+    try:
+        driver.get("http://127.0.0.1:5500/Visa application/index.html")
+        wait.until(EC.visibility_of_element_located((By.ID, "cardShort")))
+        driver.find_element(By.ID, "cardShort").click()
+
+        wait.until(EC.visibility_of_element_located((By.ID, "email")))
+        email_input = driver.find_element(By.ID, "email")
+        email_input.send_keys("not-a-valid-email")
+        driver.find_element(By.ID, "verifyEmailBtn").click()
+
+        # The email field should get the .error class and its .err-msg
+        # sibling should show the validation message.
+        wait.until(lambda d: "error" in email_input.get_attribute("class"))
+
+        err_text = driver.execute_script(
+            "var f = document.getElementById('email').closest('.field');"
+            "var e = f ? f.querySelector('.err-msg') : null;"
+            "return e ? e.textContent : null;"
+        )
+        assert err_text, "Expected an inline error message for an invalid email"
+        assert "valid email" in err_text.lower(), f"Unexpected error text: {err_text}"
+
+        # Most importantly: the OTP panel must never open for a bad
+        # email — otherwise an invalid address could still trigger a
+        # real Supabase OTP send.
+        otp_panels = driver.find_elements(By.ID, "otpVerifyPanel")
+        assert not any("show" in p.get_attribute("class") for p in otp_panels), \
+            "OTP verification panel should not open when the email is invalid"
+
+        print("PASS: invalid email was rejected and no OTP panel was opened")
+
+    finally:
+        driver.quit()
+
+
 if __name__ == "__main__":
     test_visa_application_registration()
+    test_visa_application_invalid_email_rejected()

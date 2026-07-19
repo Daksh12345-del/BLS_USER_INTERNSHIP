@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BLS International — My Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="icon" type="png" href="../images.png">
+  <link rel="stylesheet" href="dashboard.css" />
+</head>
+<body>
+
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="header-main">
+      <div class="header-main-row">
+        <div class="header-logo">
+          <div class="logo-mark logo-img-wrap">
+            <img src="../assets/bls-logo.png" alt="BLS International" class="logo-img">
+          </div>
+          <div class="logo-divider"></div>
+          <div style="display:flex;flex-direction:column;gap:3px;">
+            <span class="logo-sub-top">Official Visa Application Centre</span>
+            <span class="logo-sub-bot">Spain Schengen &amp; National Visas — India</span>
+          </div>
+        </div>
+
+        <!-- AVATAR MENU -->
+        <div class="avatar-menu" id="avatarMenu">
+          <button class="avatar-btn" id="avatarBtn" aria-haspopup="true" aria-expanded="false">
+            <span id="avatarInitial">?</span>
+          </button>
+          <div class="avatar-dropdown" id="avatarDropdown">
+            <div class="avatar-dropdown-head">
+              <div class="avatar-dropdown-name" id="ddName">Applicant</div>
+              <div class="avatar-dropdown-email" id="ddEmail">—</div>
+            </div>
+            <button class="avatar-dropdown-item" onclick="doLogout()">
+              <i class="fa fa-sign-out-alt"></i> Logout
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- SIDEBAR + CONTENT -->
+  <div class="page-layout">
+
+    <nav class="side-nav">
+      <a href="dashboard.html" class="active"><i class="fa fa-house"></i><span>Home</span></a>
+      <a href="../track/track.html"><i class="fa fa-magnifying-glass"></i><span>Track Application</span></a>
+      <a href="../Visa application/index.html"><i class="fa fa-passport"></i><span>Visa Services</span></a>
+      <a href="../appointment/appointment.html" id="navBookAppointment" style="display:none;"><i class="fa fa-calendar-check"></i><span>Book Appointment</span></a>
+      <a href="../appointment/manage.html" id="navManageAppointment"><i class="fa fa-list-check"></i><span>Manage Appointment</span></a>
+      <a href="../Document/document.html"><i class="fa fa-file-lines"></i><span>Documents Checklist</span></a>
+    </nav>
+
+    <div class="main-content">
+      <div class="dash-shell">
+
+        <!-- LOADING STATE -->
+        <div class="dash-loading" id="dashLoading">
+          <i class="fa fa-spinner fa-spin"></i>
+          <span>Loading your dashboard…</span>
+        </div>
+
+        <!-- DASHBOARD CONTENT -->
+        <div id="dashContent" style="display:none;">
+
+          <div class="dash-hero">
+            <h1>Welcome back, <span id="heroName">—</span></h1>
+            <p id="heroSub">Here's a quick overview of your account.</p>
+          </div>
+
+          <div class="dash-grid">
+
+            <!-- PERSONAL DETAILS CARD -->
+            <div class="dcard">
+              <div class="dcard-head"><i class="fa fa-user"></i> Personal Details</div>
+              <div class="dcard-body" id="personalBody"><!-- filled by JS --></div>
+            </div>
+
+            <!-- APPLICATION STATUS CARD -->
+            <div class="dcard">
+              <div class="dcard-head"><i class="fa fa-passport"></i> Application Status</div>
+              <div class="dcard-body" id="statusBody"><!-- filled by JS --></div>
+            </div>
+
+            <!-- APPOINTMENT CARD -->
+            <div class="dcard span-2">
+              <div class="dcard-head"><i class="fa fa-calendar-check"></i> Appointment</div>
+              <div class="dcard-body" id="apptBody"><!-- filled by JS --></div>
+            </div>
+
+          </div>
+
+          <!-- QUICK ACTIONS -->
+          <div class="qa-title">Quick Actions</div>
+          <div class="qa-grid">
+            <a href="../Visa application/index.html" class="qa-tile">
+              <i class="fa fa-passport"></i>
+              <span>Visa Application</span>
+            </a>
+            <a href="../appointment/appointment.html" class="qa-tile">
+              <i class="fa fa-calendar-plus"></i>
+              <span>Book Appointment</span>
+            </a>
+            <a href="../track/track.html" class="qa-tile">
+              <i class="fa fa-magnifying-glass"></i>
+              <span>Track Application</span>
+            </a>
+            <a href="../Document/document.html" class="qa-tile">
+              <i class="fa fa-file-lines"></i>
+              <span>Documents Checklist</span>
+            </a>
+          </div>
+
+        </div><!-- /dashContent -->
+      </div><!-- /dash-shell -->
+    </div><!-- /main-content -->
+  </div><!-- /page-layout -->
+
+  <!-- ═══ VIEW APPLICATION FORM MODAL ═══ -->
+  <div class="vf-modal-overlay" id="vfModalOverlay">
+    <div class="vf-modal">
+      <div class="vf-modal-head">
+        <span><i class="fa fa-file-lines"></i> Your Submitted Application</span>
+        <button class="vf-modal-close" id="vfModalCloseBtn" aria-label="Close"><i class="fa fa-xmark"></i></button>
+      </div>
+      <div class="vf-modal-body" id="vfModalBody"><!-- filled by JS --></div>
+    </div>
+  </div>
+
+  <script src="../shared/config.js"></script>
+  <script src="../utils/auth-helper.js"></script>
+  <script src="dashboard.js"></script>
+</body>
+</html>

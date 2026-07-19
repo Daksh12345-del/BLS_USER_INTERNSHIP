@@ -122,5 +122,70 @@ def test_track_application():
         driver.quit()
 
 
+# ────────────────────────────────────────────
+# NEGATIVE PATH: valid reference number + WRONG passport number must
+# be rejected. Same reasoning as the documents-checklist negative
+# test — this route is public, and passport number is the only thing
+# stopping someone from tracking a stranger's application.
+# ────────────────────────────────────────────
+def test_track_wrong_passport_rejected():
+    if not os.path.exists(SESSION_FILE):
+        pytest.skip(f"'{SESSION_FILE}' not found. Run the registration script first.")
+
+    with open(SESSION_FILE, "r", encoding="utf-8") as f:
+        session_data = json.load(f)
+
+    track_ref = (
+        session_data.get("ref_number")
+        or session_data.get("reference_number")
+        or session_data.get("apptRef")
+        or session_data.get("ref")
+    )
+    if not track_ref:
+        pytest.fail(f"No ref_number found in {SESSION_FILE}: {session_data}")
+
+    wrong_passport = "Z9999999"  # deliberately not the applicant's real passport number
+
+    driver = webdriver.Chrome()
+    wait = WebDriverWait(driver, 15)
+
+    try:
+        driver.get(TRACK_URL)
+
+        ref_input = wait.until(lambda d: d.find_element(By.ID, "refInput"))
+        ref_input.clear()
+        ref_input.send_keys(track_ref)
+
+        passport_input = driver.find_element(By.ID, "passportInput")
+        passport_input.clear()
+        passport_input.send_keys(wrong_passport)
+
+        driver.find_element(By.ID, "trackBtn").click()
+
+        def _result_or_error(d):
+            result_shown = d.find_element(By.ID, "resultWrap").value_of_css_property("display") != "none"
+            error_shown = "show" in d.find_element(By.ID, "lookupMsg").get_attribute("class")
+            return result_shown or error_shown
+
+        wait.until(_result_or_error)
+
+        error_el = driver.find_element(By.ID, "lookupMsg")
+        assert "show" in error_el.get_attribute("class"), (
+            "Expected an error for a valid reference number with the wrong passport number, "
+            "but tracking details were shown instead — this is an access-control gap."
+        )
+
+        result_wrap = driver.find_element(By.ID, "resultWrap")
+        assert result_wrap.value_of_css_property("display") == "none", \
+            "Tracking details must stay hidden when the passport number doesn't match"
+
+        print("PASS: wrong passport number was correctly rejected —",
+              driver.find_element(By.ID, "lookupMsgText").text)
+
+    finally:
+        driver.quit()
+
+
 if __name__ == "__main__":
     test_track_application()
+    test_track_wrong_passport_rejected()

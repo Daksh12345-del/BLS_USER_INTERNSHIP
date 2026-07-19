@@ -102,3 +102,6 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:
   .side-nav a { padding: 12px 16px; border-left: none; border-bottom: 3px solid transparent; }
   .side-nav a.active, .side-nav a:hover { border-left: none; border-bottom-color: var(--gold); }
 }
+
+.logo-img-wrap{background:#fff;padding:6px 16px;border-radius:8px;}
+.logo-img{height:40px;display:block;}

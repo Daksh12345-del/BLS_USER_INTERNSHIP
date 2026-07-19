@@ -16,110 +16,24 @@
 // ══════════════════════════════════════════════════════════════════
 
 // ── 1. SUPABASE CONFIG (Auth + Edge Function only — see note above) ──
-const SUPABASE_URL  = 'https://cnpuceqzubaolbfxqpge.supabase.co';       // e.g. https://xyzxyz.supabase.co
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNucHVjZXF6dWJhb2xiZnhxcGdlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5OTYxNzcsImV4cCI6MjA5NjU3MjE3N30.ZaxtjTXyVQIZytf3ChiCgr1tf-N7er2yqZ4pzv0za7E';  // e.g. eyJhbGci...
+// SUPABASE_URL / SUPABASE_ANON now come from shared/config.js (window.APP_CONFIG)
 
-const supabaseConfigured = SUPABASE_URL !== 'YOUR_SUPABASE_URL';
+const supabaseConfigured = window.APP_CONFIG.SUPABASE_URL !== 'YOUR_SUPABASE_URL';
 let supabaseClient = null;
 
 if (supabaseConfigured) {
-  supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+  supabaseClient = supabase.createClient(window.APP_CONFIG.SUPABASE_URL, window.APP_CONFIG.SUPABASE_ANON_KEY);
   document.getElementById('configBanner').style.display = 'none';
 }
 
 // Load locations from DB as soon as the client is ready
-// ── SAFETY NET ──────────────────────────────────────────────
-// This file calls i18nT()/i18nInit()/i18nDateLocale() (defined in
-// i18n-shared.js). If that file fails to load for any reason (wrong path,
-// missing from the folder, network hiccup), those calls would throw
-// "is not defined" and break the whole page. These fallbacks make sure
-// that NEVER happens — worst case, translations just don't apply.
-if (typeof i18nT !== 'function') {
-  window.i18nT = function (key, fallback) { return fallback !== undefined ? fallback : key; };
-  console.warn('i18n-shared.js did not load — check it is in the same folder as this page. Falling back to English.');
-}
-if (typeof i18nDateLocale !== 'function') {
-  window.i18nDateLocale = function () { return 'en-IN'; };
-}
-if (typeof i18nInit !== 'function') {
-  window.i18nInit = function () { /* no-op fallback */ };
-}
 
 document.addEventListener('DOMContentLoaded', function () { loadLocations(); });
-document.addEventListener('DOMContentLoaded', function () {
-  if (typeof i18nInit === 'function') i18nInit({ switcherEl: '#langSwitcher' });
-});
 
-// ── 2. COUNTRY CODE MAP ───────────────────────────────────────────
-const COUNTRY_CODES = {
-  'Indian':      { dial: '+91',  flag: '🇮🇳', name: 'India' },
-  'Bangladeshi': { dial: '+880', flag: '🇧🇩', name: 'Bangladesh' },
-  'Sri Lankan':  { dial: '+94',  flag: '🇱🇰', name: 'Sri Lanka' },
-  'Nepali':      { dial: '+977', flag: '🇳🇵', name: 'Nepal' },
-  'Pakistani':   { dial: '+92',  flag: '🇵🇰', name: 'Pakistan' },
-  'Afghan':      { dial: '+93',  flag: '🇦🇫', name: 'Afghanistan' },
-  'Bhutanese':   { dial: '+975', flag: '🇧🇹', name: 'Bhutan' },
-  'Maldivian':   { dial: '+960', flag: '🇲🇻', name: 'Maldives' },
-};
-
-const COUNTRY_LOOKUP = {
-  'afghanistan':{'dial':'+93','flag':'🇦🇫'},'albania':{'dial':'+355','flag':'🇦🇱'},
-  'algeria':{'dial':'+213','flag':'🇩🇿'},'angola':{'dial':'+244','flag':'🇦🇴'},
-  'argentina':{'dial':'+54','flag':'🇦🇷'},'armenia':{'dial':'+374','flag':'🇦🇲'},
-  'australia':{'dial':'+61','flag':'🇦🇺'},'austria':{'dial':'+43','flag':'🇦🇹'},
-  'azerbaijan':{'dial':'+994','flag':'🇦🇿'},'bahrain':{'dial':'+973','flag':'🇧🇭'},
-  'bangladesh':{'dial':'+880','flag':'🇧🇩'},'belarus':{'dial':'+375','flag':'🇧🇾'},
-  'belgium':{'dial':'+32','flag':'🇧🇪'},'bolivia':{'dial':'+591','flag':'🇧🇴'},
-  'brazil':{'dial':'+55','flag':'🇧🇷'},'bulgaria':{'dial':'+359','flag':'🇧🇬'},
-  'cambodia':{'dial':'+855','flag':'🇰🇭'},'cameroon':{'dial':'+237','flag':'🇨🇲'},
-  'canada':{'dial':'+1','flag':'🇨🇦'},'chile':{'dial':'+56','flag':'🇨🇱'},
-  'china':{'dial':'+86','flag':'🇨🇳'},'colombia':{'dial':'+57','flag':'🇨🇴'},
-  'croatia':{'dial':'+385','flag':'🇭🇷'},'cuba':{'dial':'+53','flag':'🇨🇺'},
-  'cyprus':{'dial':'+357','flag':'🇨🇾'},'czech':{'dial':'+420','flag':'🇨🇿'},
-  'denmark':{'dial':'+45','flag':'🇩🇰'},'egypt':{'dial':'+20','flag':'🇪🇬'},
-  'ethiopia':{'dial':'+251','flag':'🇪🇹'},'finland':{'dial':'+358','flag':'🇫🇮'},
-  'france':{'dial':'+33','flag':'🇫🇷'},'georgia':{'dial':'+995','flag':'🇬🇪'},
-  'germany':{'dial':'+49','flag':'🇩🇪'},'ghana':{'dial':'+233','flag':'🇬🇭'},
-  'greece':{'dial':'+30','flag':'🇬🇷'},'hungary':{'dial':'+36','flag':'🇭🇺'},
-  'indonesia':{'dial':'+62','flag':'🇮🇩'},'iran':{'dial':'+98','flag':'🇮🇷'},
-  'iraq':{'dial':'+964','flag':'🇮🇶'},'ireland':{'dial':'+353','flag':'🇮🇪'},
-  'israel':{'dial':'+972','flag':'🇮🇱'},'italy':{'dial':'+39','flag':'🇮🇹'},
-  'japan':{'dial':'+81','flag':'🇯🇵'},'jordan':{'dial':'+962','flag':'🇯🇴'},
-  'kazakhstan':{'dial':'+7','flag':'🇰🇿'},'kenya':{'dial':'+254','flag':'🇰🇪'},
-  'korea':{'dial':'+82','flag':'🇰🇷'},'south korea':{'dial':'+82','flag':'🇰🇷'},
-  'kuwait':{'dial':'+965','flag':'🇰🇼'},'kyrgyzstan':{'dial':'+996','flag':'🇰🇬'},
-  'laos':{'dial':'+856','flag':'🇱🇦'},'latvia':{'dial':'+371','flag':'🇱🇻'},
-  'lebanon':{'dial':'+961','flag':'🇱🇧'},'libya':{'dial':'+218','flag':'🇱🇾'},
-  'lithuania':{'dial':'+370','flag':'🇱🇹'},'malaysia':{'dial':'+60','flag':'🇲🇾'},
-  'mexico':{'dial':'+52','flag':'🇲🇽'},'moldova':{'dial':'+373','flag':'🇲🇩'},
-  'mongolia':{'dial':'+976','flag':'🇲🇳'},'morocco':{'dial':'+212','flag':'🇲🇦'},
-  'mozambique':{'dial':'+258','flag':'🇲🇿'},'myanmar':{'dial':'+95','flag':'🇲🇲'},
-  'nepal':{'dial':'+977','flag':'🇳🇵'},'netherlands':{'dial':'+31','flag':'🇳🇱'},
-  'new zealand':{'dial':'+64','flag':'🇳🇿'},'nigeria':{'dial':'+234','flag':'🇳🇬'},
-  'norway':{'dial':'+47','flag':'🇳🇴'},'oman':{'dial':'+968','flag':'🇴🇲'},
-  'pakistan':{'dial':'+92','flag':'🇵🇰'},'palestine':{'dial':'+970','flag':'🇵🇸'},
-  'peru':{'dial':'+51','flag':'🇵🇪'},'philippines':{'dial':'+63','flag':'🇵🇭'},
-  'poland':{'dial':'+48','flag':'🇵🇱'},'portugal':{'dial':'+351','flag':'🇵🇹'},
-  'qatar':{'dial':'+974','flag':'🇶🇦'},'romania':{'dial':'+40','flag':'🇷🇴'},
-  'russia':{'dial':'+7','flag':'🇷🇺'},'saudi':{'dial':'+966','flag':'🇸🇦'},
-  'saudi arabia':{'dial':'+966','flag':'🇸🇦'},'senegal':{'dial':'+221','flag':'🇸🇳'},
-  'serbia':{'dial':'+381','flag':'🇷🇸'},'singapore':{'dial':'+65','flag':'🇸🇬'},
-  'slovakia':{'dial':'+421','flag':'🇸🇰'},'somalia':{'dial':'+252','flag':'🇸🇴'},
-  'south africa':{'dial':'+27','flag':'🇿🇦'},'spain':{'dial':'+34','flag':'🇪🇸'},
-  'sri lanka':{'dial':'+94','flag':'🇱🇰'},'sudan':{'dial':'+249','flag':'🇸🇩'},
-  'sweden':{'dial':'+46','flag':'🇸🇪'},'switzerland':{'dial':'+41','flag':'🇨🇭'},
-  'syria':{'dial':'+963','flag':'🇸🇾'},'taiwan':{'dial':'+886','flag':'🇹🇼'},
-  'tajikistan':{'dial':'+992','flag':'🇹🇯'},'tanzania':{'dial':'+255','flag':'🇹🇿'},
-  'thailand':{'dial':'+66','flag':'🇹🇭'},'tunisia':{'dial':'+216','flag':'🇹🇳'},
-  'turkey':{'dial':'+90','flag':'🇹🇷'},'turkmenistan':{'dial':'+993','flag':'🇹🇲'},
-  'uganda':{'dial':'+256','flag':'🇺🇬'},'ukraine':{'dial':'+380','flag':'🇺🇦'},
-  'uae':{'dial':'+971','flag':'🇦🇪'},'united arab emirates':{'dial':'+971','flag':'🇦🇪'},
-  'uk':{'dial':'+44','flag':'🇬🇧'},'united kingdom':{'dial':'+44','flag':'🇬🇧'},
-  'usa':{'dial':'+1','flag':'🇺🇸'},'united states':{'dial':'+1','flag':'🇺🇸'},
-  'uzbekistan':{'dial':'+998','flag':'🇺🇿'},'venezuela':{'dial':'+58','flag':'🇻🇪'},
-  'vietnam':{'dial':'+84','flag':'🇻🇳'},'yemen':{'dial':'+967','flag':'🇾🇪'},
-  'zambia':{'dial':'+260','flag':'🇿🇲'},'zimbabwe':{'dial':'+263','flag':'🇿🇼'},
-};
+// ── 2. COUNTRY CODE MAP ─────────────────────────────────────────
+// Moved to shared/country-data.js (COUNTRY_CODES, COUNTRY_LOOKUP) —
+// pure data, extracted so this file stays focused on page logic.
+// shared/country-data.js must be included before this script.
 
 // ── 3. STAY CONFIG ────────────────────────────────────────────────
 const stayConfig = {
@@ -155,7 +69,7 @@ let GEO_CITIES    = [];   // [{ id, state_id, country_id, name }]
 // Load all three tables up-front (small data, fast) — now via backend
 async function loadLocations() {
   try {
-    const res = await fetch('/api/users/appointment/locations');
+    const res = await fetch(`${apiUsersBase()}/appointment/locations`);
     const result = await res.json();
     if (!res.ok) throw new Error(result.error || 'Failed to load locations');
     GEO_COUNTRIES = result.countries || [];
@@ -552,7 +466,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const minExpiry = new Date(retVal);
         minExpiry.setDate(minExpiry.getDate() + 90);
         if (expiryDate < minExpiry) {
-          const fmt = minExpiry.toLocaleDateString(i18nDateLocale(), {day:'2-digit',month:'short',year:'numeric'});
+          const fmt = minExpiry.toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'});
           expiryErr.textContent = 'Passport must be valid until at least ' + fmt + ' (3 months after return date).';
           expiryErr.classList.add('show'); document.getElementById('passportExpiry').classList.add('error');
           expiryValid = false;
@@ -561,7 +475,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const minExpiry = new Date(depVal);
         minExpiry.setDate(minExpiry.getDate() + 180);
         if (expiryDate < minExpiry) {
-          const fmt = minExpiry.toLocaleDateString(i18nDateLocale(), {day:'2-digit',month:'short',year:'numeric'});
+          const fmt = minExpiry.toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'});
           expiryErr.textContent = 'Long Stay: passport must be valid until at least ' + fmt + ' (6 months after departure).';
           expiryErr.classList.add('show'); document.getElementById('passportExpiry').classList.add('error');
           expiryValid = false;
@@ -758,7 +672,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // ── 4. SUBMIT → SUPABASE ─────────────────────────────────────
   window.submitForm = async function () {
-    if (!currentStay) { alert(i18nT('visa.alert.select_stay', 'Please select a stay type first.')); return; }
+    if (!currentStay) { alert('Please select a stay type first.'); return; }
 
     // Validate all required fields
     let allValid = true;
@@ -773,7 +687,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (dt.number_label && !docGetNumberValue(dt.key)) missingDocs.push(dt.number_label);
     });
     if (missingDocs.length) {
-      alert(i18nT('visa.alert.missing_docs', 'Please upload the following required document(s):') + ' ' + missingDocs.join(', '));
+      alert('Please upload the following required document(s):' + ' ' + missingDocs.join(', '));
       document.getElementById('dynamicDocUploads').scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
@@ -789,8 +703,8 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('durationErr').classList.add('show');
       allValid = false;
     }
-    if (!document.getElementById('tnc').checked) { alert(i18nT('visa.alert.agree_tnc', 'Please agree to the Terms & Conditions.')); return; }
-    if (!document.getElementById('consent').checked) { alert(i18nT('visa.alert.consent', 'Please provide your data processing consent.')); return; }
+    if (!document.getElementById('tnc').checked) { alert('Please agree to the Terms & Conditions.'); return; }
+    if (!document.getElementById('consent').checked) { alert('Please provide your data processing consent.'); return; }
 
     // ── CAPTCHA check ──────────────────────────────────────────────
     if (!window._checkCaptcha('reg')) {
@@ -805,7 +719,7 @@ document.addEventListener('DOMContentLoaded', function () {
       vbtn.classList.add('error-box');
       setTimeout(() => vbtn.classList.remove('error-box'), 1200);
       emailInput.closest('.field').scrollIntoView({ behavior: 'smooth', block: 'center' });
-      alert(i18nT('visa.alert.verify_email', 'Please verify your email address using the "Verify" button before submitting.'));
+      alert('Please verify your email address using the "Verify" button before submitting.');
       return;
     }
 
@@ -888,7 +802,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const backendRecord = { ...record, email: emailVal, password: pwdVal };
 
-        const applyRes = await fetch('http://localhost:5000/api/users/visa/apply', {
+        const applyRes = await fetch(`${apiUsersBase()}/visa/apply`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(backendRecord)
@@ -965,6 +879,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       document.getElementById('errorMsg').textContent = userMsg;
       document.getElementById('errorBanner').style.display = 'flex';
+      document.getElementById('successBanner').classList.remove('show');
 
       // Show "Login Instead" button only for duplicate email error
       const loginBtn = document.getElementById('errorLoginBtn');
@@ -1014,7 +929,15 @@ document.addEventListener('DOMContentLoaded', function () {
     progressFill.style.width = '100%';
     const banner = document.getElementById('successBanner');
     banner.classList.add('show');
-    document.getElementById('refNumber').textContent = ref;
+    // Make sure a fresh submit always starts clean — hide any leftover
+    // error banner from a previous failed attempt.
+    document.getElementById('errorBanner').style.display = 'none';
+
+    // refNumber element is optional (currently commented out in index.html) —
+    // guard so a missing element never throws and derails the success flow.
+    const refEl = document.getElementById('refNumber');
+    if (refEl) refEl.textContent = ref;
+
     banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
     // ✅ Persist session so "Home" and the nav bar on other pages know
@@ -1101,7 +1024,7 @@ document.addEventListener('DOMContentLoaded', function () {
     emailInput.classList.remove('error');
 
     if (!supabaseConfigured) {
-      alert(i18nT('visa.alert.supabase_required', 'Email verification requires Supabase to be configured. Please contact support.'));
+      alert('Email verification requires Supabase to be configured. Please contact support.');
       return;
     }
 

@@ -19,16 +19,22 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:
 .header-badges { display: flex; gap: 10px; }
 .hbadge { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 5px 12px; font-size: 11px; color: #eee; }
 .hbadge i { color: var(--gold); font-size: 12px; }
-.header-nav { background: var(--nav); border-bottom: 2px solid var(--gold); }
-.nav-inner { max-width: 1100px; margin: 0 auto; padding: 0 28px; display: flex; }
-.header-nav a { color: #ccc; font-size: 12px; font-weight: 500; padding: 11px 16px; text-decoration: none; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all .2s; display: inline-flex; align-items: center; gap: 6px; }
-.header-nav a:hover { color: var(--gold); background: rgba(200,169,81,.06); }
-.header-nav a.active { color: var(--gold); border-bottom-color: var(--gold); }
 .page-title-bar { background: #fff; border-bottom: 1px solid #ddd; padding: 12px 28px; display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 600; color: #444; }
 .page-title-bar i { color: var(--gold); }
 .breadcrumb { margin-left: auto; font-size: 12px; color: #999; font-weight: 400; }
 .breadcrumb a { color: #999; text-decoration: none; }
 .breadcrumb span { color: var(--gold); font-weight: 500; }
+
+/* LEFT SIDEBAR NAV — matches Dashboard/Track/Documents/Visa Application pages */
+.page-layout { display: flex; align-items: flex-start; }
+.side-nav { display: flex; flex-direction: column; width: 220px; flex-shrink: 0; background: #fff; border-right: 1px solid #e2e2e2; padding: 10px 0; position: sticky; top: 0; min-height: calc(100vh - 78px); }
+.side-nav a { display: flex; align-items: center; gap: 11px; padding: 13px 22px; color: #555; font-size: 12.5px; font-weight: 500; text-decoration: none; border-left: 3px solid transparent; transition: all 0.18s; white-space: nowrap; }
+.side-nav a i { font-size: 13px; width: 16px; text-align: center; color: #999; flex-shrink: 0; transition: color 0.18s; }
+.side-nav a:hover { background: #fdf8ed; color: var(--dark); border-left-color: var(--gold); }
+.side-nav a:hover i { color: var(--gold); }
+.side-nav a.active { background: #f5f0e0; color: var(--dark); border-left-color: var(--gold); font-weight: 700; }
+.side-nav a.active i { color: var(--gold); }
+.main-content { flex: 1; min-width: 0; }
 
 /* ACCESS GUARD */
 .access-guard { max-width: 520px; margin: 60px auto; padding: 0 16px; text-align: center; display: none; }
@@ -84,6 +90,62 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:
 .field textarea { height: 80px; resize: vertical; }
 .err-msg { font-size: 11px; color: var(--red); margin-top: 4px; display: none; }
 .err-msg.show { display: block; }
+
+/* Slightly richer look for date/select inputs used in Passport Validity
+   & Visit Details — subtle left accent + nicer disabled/hover states. */
+.field input[type="date"], .field select { cursor: pointer; }
+.field input[type="date"]:hover, .field select:hover:not(:disabled) { border-color: #cfcfcf; }
+.field select:not(:disabled) { background-image: linear-gradient(45deg, transparent 50%, var(--gray) 50%), linear-gradient(135deg, var(--gray) 50%, transparent 50%); background-position: calc(100% - 18px) center, calc(100% - 13px) center; background-size: 5px 5px, 5px 5px; background-repeat: no-repeat; appearance: none; -webkit-appearance: none; padding-right: 34px; }
+
+/* Section labels get a small gold badge behind the icon instead of a bare icon */
+.section-label i { color: #fff; background: var(--gold); width: 22px; height: 22px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
+
+/* DOCUMENT UPLOAD DROPZONES ─────────────────────────────────────────
+   .upload-box previously had no CSS at all, so it rendered as a bare
+   native file input ("Choose File / No file chosen") with no card,
+   border, or affordance. This turns it into a proper dropzone card. */
+.upload-box {
+  position: relative;
+  border: 1.5px dashed #d5d5d5;
+  border-radius: 8px;
+  background: #fafafa;
+  padding: 18px 14px 14px;
+  text-align: center;
+  transition: border-color .18s, background .18s, box-shadow .18s;
+}
+.upload-box:hover { border-color: var(--gold); background: #fdfbf5; box-shadow: 0 2px 10px rgba(200,169,81,.12); }
+.upload-box .uicon { display: block; font-size: 22px; color: var(--gold); margin-bottom: 8px; }
+.upload-box p { font-size: 11.5px; color: #999; line-height: 1.5; margin: 0; }
+.upload-box p .hl { color: var(--gray); font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }
+.upload-box .file-name { font-size: 11px; color: var(--green); font-weight: 600; margin-top: 6px; min-height: 14px; word-break: break-word; }
+.upload-box.has-file { border-style: solid; border-color: var(--green); background: #f3fbf5; }
+.upload-box.has-file .uicon { color: var(--green); }
+
+/* Native file input: instead of hiding it (which risks breaking the
+   existing change-listener wiring), restyle it in place — full-width,
+   theme-matched "Browse" button, no more default browser chrome. */
+.upload-box input[type="file"] {
+  width: 100%;
+  margin-top: 12px;
+  font-size: 11px;
+  color: #999;
+  cursor: pointer;
+}
+.upload-box input[type="file"]::file-selector-button {
+  padding: 7px 14px;
+  margin-right: 10px;
+  border: none;
+  border-radius: 5px;
+  background: var(--gray);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background .15s;
+}
+.upload-box input[type="file"]:hover::file-selector-button { background: var(--gold); }
+.upload-box.has-file input[type="file"]::file-selector-button { background: var(--green); }
 
 /* BUTTONS */
 .btn-primary { padding: 12px 32px; background: var(--gray); color: #fff; border: 2px solid var(--gray); border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 8px; transition: background .15s, border-color .15s; }
@@ -225,4 +287,11 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:
   .header-badges { display: none; }
   .cal-grid { gap: 2px; }
   .slot-grid { grid-template-columns: repeat(2,1fr); }
+  .page-layout { flex-direction: column; }
+  .side-nav { width: 100%; flex-direction: row; overflow-x: auto; position: static; min-height: auto; border-right: none; border-bottom: 1px solid #e2e2e2; }
+  .side-nav a { padding: 12px 16px; border-left: none; border-bottom: 3px solid transparent; }
+  .side-nav a.active, .side-nav a:hover { border-left: none; border-bottom-color: var(--gold); }
 }
+
+.logo-img-wrap{background:#fff;padding:6px 16px;border-radius:8px;}
+.logo-img{height:40px;display:block;}

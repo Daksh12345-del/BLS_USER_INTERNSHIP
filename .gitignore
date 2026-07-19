@@ -1,8 +1,0 @@
-__pycache__/
-*.pyc
-.venv/
-*.log
-screenshots/
-report.html
-session_data.json
-.vscode/

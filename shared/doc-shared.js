@@ -1,4 +1,5 @@
 // ═══════════════════════════════════════════════════════════
+//  shared/doc-shared.js
 //  DOCUMENT CHECKLIST — shared helpers
 //  Used by: script.js (Visa Application), appointment.js,
 //           document.js (user checklist page), admin.js
@@ -6,9 +7,17 @@
 //  All calls go through the backend (userRoutes.js → /api/users/documents/*).
 //  Postgres + Supabase Storage are only touched server-side, using the
 //  service role key — no DB/storage key lives in the browser anymore.
+//
+//  THIS IS NOW THE ONLY COPY. It previously existed as three
+//  byte-identical files (Visa application/docshared.js,
+//  Document/doc-shared.js, appointment/docshared.js — 480 lines of
+//  pure duplication) — a bug fix or feature change had to be applied
+//  three times by hand, and it was easy for the copies to quietly
+//  drift apart. Every page now includes this one file via a relative
+//  path (`../shared/doc-shared.js`). Must load AFTER shared/config.js.
 // ═══════════════════════════════════════════════════════════
 
-const DOC_API_BASE = '/api/users/documents';
+const DOC_API_BASE = apiDocumentsBase(); // from shared/config.js — must load AFTER config.js
 
 /**
  * Load active document type config rows, optionally filtered to

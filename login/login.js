@@ -105,26 +105,6 @@ function checkCaptcha(which) {
   return true;
 }
 
-// ── SAFETY NET ──────────────────────────────────────────────
-// This file calls i18nT()/i18nInit()/i18nDateLocale() (defined in
-// i18n-shared.js). If that file fails to load for any reason (wrong path,
-// missing from the folder, network hiccup), those calls would throw
-// "is not defined" and break the whole page. These fallbacks make sure
-// that NEVER happens — worst case, translations just don't apply.
-if (typeof i18nT !== 'function') {
-  window.i18nT = function (key, fallback) { return fallback !== undefined ? fallback : key; };
-  console.warn('i18n-shared.js did not load — check it is in the same folder as this page. Falling back to English.');
-}
-if (typeof i18nDateLocale !== 'function') {
-  window.i18nDateLocale = function () { return 'en-IN'; };
-}
-if (typeof i18nInit !== 'function') {
-  window.i18nInit = function () { /* no-op fallback */ };
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-  if (typeof i18nInit === 'function') i18nInit({ switcherEl: '#langSwitcher' });
-});
 document.addEventListener('DOMContentLoaded', function() {
   drawCaptcha('pwd');
   drawCaptcha('otp');
@@ -136,12 +116,22 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // ✅ If the user already has an active session (logged in, or just
-  // finished submitting a visa application), show their application
-  // straight away instead of the login form — this is what makes
-  // clicking "Home" show the submitted application.
+  // finished submitting a visa application), send them straight to
+  // the dashboard instead of showing the login form — this is what
+  // makes clicking "Home" show the dashboard.
+  //
+  // IMPORTANT: must check bls_token too, not just bls_logged_email.
+  // After submitting a Visa Application, script.js sets bls_logged_email
+  // alone (no token yet, since submitting isn't the same as logging in).
+  // If we redirected on email alone, a user who came here specifically
+  // to log in (e.g. from the Appointment page's "please login" guard)
+  // would get bounced straight back to dashboard.html without ever
+  // seeing the login form — and dashboard.js would bounce them right
+  // back here for lacking a token, causing an infinite redirect loop.
   const existingEmail = sessionStorage.getItem('bls_logged_email');
-  if (existingEmail) {
-    loginSuccess(existingEmail);
+  const existingToken = sessionStorage.getItem('bls_token');
+  if (existingEmail && existingToken) {
+    window.location.href = '../dashboard/dashboard.html';
   }
 });
 
@@ -179,21 +169,64 @@ function showAlert(id, msgId, msg) {
 }
 function hideAlert(id) { document.getElementById(id).classList.remove('show'); }
 
-// After successful login — fetch application and render profile
-async function loginSuccess(email) {
-  // ✅ Save email in sessionStorage so appointment.html knows user is logged in
-  sessionStorage.setItem('bls_logged_email', email.trim().toLowerCase());
+// After successful login — before handing off to the dashboard, make sure
+// this applicant has actually submitted a Visa Application. If they
+// haven't, don't let them through to the dashboard at all — show the
+// "Registration Not Done" popup instead (see regRequiredModal in login.html).
+async function loginSuccess(email, token) {
+  const cleanEmail = email.trim().toLowerCase();
 
-  document.getElementById('loginCard').style.display = 'none';
-  let app = null;
   try {
-    const res = await fetch(`http://localhost:5000/api/users/visa/application/${encodeURIComponent(email.trim().toLowerCase())}`);
+    const res = await fetch(
+      `http://localhost:5000/api/users/appointment/registration/${encodeURIComponent(cleanEmail)}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
     const data = await res.json();
-    app = data.application; // backend sends { application: null } or { application: {...} }
-  } catch (err) {
-    console.error('Application fetch failed:', err);
+
+    if (!res.ok) {
+      // Auth/server error on the check itself (expired token, backend
+      // hiccup, etc) — NOT the same as "not registered". Don't punish
+      // the user with the wrong popup for an error that isn't theirs;
+      // fall through to the dashboard like the network-failure case below.
+      console.warn('Registration check returned an error:', data.error);
+    } else if (!data.registered) {
+      showRegistrationRequiredPopup(cleanEmail);
+      return; // 🚫 do NOT set session / do NOT go to dashboard
+    }
+  } catch (e) {
+    // Backend unreachable — don't hard-lock the user out over a network
+    // blip; fall through and let the dashboard's own (already-existing)
+    // empty-state handle it.
+    console.warn('Registration check failed:', e);
   }
-  renderProfile(email, app);
+
+  // ✅ Save email AND the login token in sessionStorage — dashboard.js
+  // requires both (`bls_logged_email` + `bls_token`) or it bounces back
+  // to this login page. Previously only the email was saved here, which
+  // meant a successful password login still got redirected straight back
+  // to login.html because bls_token was never set.
+  sessionStorage.setItem('bls_logged_email', cleanEmail);
+  if (token) sessionStorage.setItem('bls_token', token);
+  window.location.href = '../dashboard/dashboard.html';
+}
+
+// Shows the popup and wires its two buttons. Called instead of navigating
+// to the dashboard whenever /appointment/registration/:email comes back
+// with { registered: false }.
+function showRegistrationRequiredPopup(email) {
+  const modal = document.getElementById('regRequiredModal');
+  if (!modal) { // fallback in case the modal markup isn't present for some reason
+    alert('Registration not done. Please register first.');
+    return;
+  }
+  modal.classList.add('show');
+
+  document.getElementById('regModalGoBtn').onclick = () => {
+    window.location.href = '../Visa application/index.html';
+  };
+  document.getElementById('regModalCloseBtn').onclick = () => {
+    modal.classList.remove('show');
+  };
 }
 
 // ════════════════════════════════════════════════════════════
@@ -251,7 +284,7 @@ async function doPasswordLogin() {
 
     if (!res.ok) throw new Error(data.error || 'Login failed. Please try again.');
 
-    await loginSuccess(email);
+    await loginSuccess(email, data.token);
   } catch (err) {
     showAlert('pwdError', 'pwdErrorMsg', err.message || 'Login failed. Please try again.');
     refreshCaptcha('pwd');
@@ -387,7 +420,7 @@ async function doVerifyOtp() {
     // Demo mode — accept any 6-digit code
     await delay(700);
     setLoading('verifyOtpBtn', false, '<i class="fa fa-check-circle"></i> Verify &amp; Sign In');
-    await loginSuccess(_otpEmail || 'demo@example.com');
+    await loginSuccess(_otpEmail || 'demo@example.com', 'demo-token');
     return;
   }
 
@@ -410,7 +443,8 @@ async function doVerifyOtp() {
     }
 
     clearInterval(_resendTimer);
-    await loginSuccess(_otpEmail);
+    const otpToken = data && data.session ? data.session.access_token : null;
+    await loginSuccess(_otpEmail, otpToken);
 
   } catch(err) {
     document.querySelectorAll('.otp-box').forEach(b => b.classList.add('error-box'));
@@ -482,114 +516,8 @@ function startResendTimer() {
   }, 1000);
 }
 
-// ════════════════════════════════════════════════════════════
-//  RENDER PROFILE
-// ════════════════════════════════════════════════════════════
-function renderProfile(email, app) {
-  const fullName = app ? ((app.first_name||'') + ' ' + (app.last_name||'')).trim() : email.split('@')[0];
-  document.getElementById('profileName').textContent  = fullName || 'Applicant';
-  document.getElementById('profileEmail').textContent = email;
-
-  const body = document.getElementById('profileBody');
-
-  if (!app) {
-    body.innerHTML = `<div class="no-apps">
-      <i class="fa fa-folder-open"></i>
-      No application found for this account.<br>
-      <a href="../Visa application/index.html" style="color:var(--gold);font-weight:600;text-decoration:none;margin-top:8px;display:inline-block;">
-        <i class="fa fa-plus-circle"></i> Start a New Application
-      </a></div>`;
-  } else {
-    const sc = 'status-'+(app.status||'submitted');
-    const sl = (app.status||'submitted').replace('_',' ').replace(/\b\w/g,c=>c.toUpperCase());
-    body.innerHTML = `
-      <div class="ref-box">
-        <i class="fa fa-barcode"></i>
-        <div><div class="ref-label">Applicant ID</div><div class="ref-num">${esc(app.reference_number)}</div></div>
-        <div style="margin-left:auto;text-align:right;">
-          <div class="ref-label">Status</div>
-          <span class="status-badge ${sc}">${esc(sl)}</span>
-        </div>
-      </div>
-
-      <div class="section-label"><i class="fa fa-user"></i> Personal Information</div>
-      <div class="info-grid">
-        <div class="info-item"><label>First Name</label><div class="val">${esc(app.first_name)}</div></div>
-        <div class="info-item"><label>Last Name</label><div class="val">${esc(app.last_name)}</div></div>
-        <div class="info-item"><label>Date of Birth</label><div class="val">${fmt(app.date_of_birth)}</div></div>
-        <div class="info-item"><label>Gender</label><div class="val">${esc(app.gender)}</div></div>
-        <div class="info-item"><label>Nationality</label><div class="val">${esc(app.nationality)}</div></div>
-        <div class="info-item">
-          <label>Email <i class="fa fa-lock" style="color:#bbb;font-size:10px;margin-left:3px;"></i></label>
-          <div class="val locked"><i class="fa fa-lock"></i>${esc(app.email)}</div>
-        </div>
-        <div class="info-item">
-          <label>Mobile <i class="fa fa-lock" style="color:#bbb;font-size:10px;margin-left:3px;"></i></label>
-          <div class="val locked"><i class="fa fa-lock"></i>${esc(app.mobile)}</div>
-        </div>
-      </div>
-
-      <div class="section-label"><i class="fa fa-passport"></i> Passport Details</div>
-      <div class="info-grid">
-        <div class="info-item">
-          <label>Passport No. <i class="fa fa-lock" style="color:#bbb;font-size:10px;margin-left:3px;"></i></label>
-          <div class="val locked"><i class="fa fa-lock"></i>${esc(app.passport_number)}</div>
-        </div>
-        <div class="info-item"><label>Place of Issue</label><div class="val">${esc(app.place_of_issue)}</div></div>
-        <div class="info-item"><label>Issue Date</label><div class="val">${fmt(app.passport_issue)}</div></div>
-        <div class="info-item"><label>Expiry Date</label><div class="val">${fmt(app.passport_expiry)}</div></div>
-      </div>
-
-      <div class="section-label"><i class="fa fa-plane"></i> Travel Details</div>
-      <div class="info-grid">
-        <div class="info-item"><label>Visa Type</label><div class="val">${esc(app.visa_type)}</div></div>
-        <div class="info-item"><label>Stay Type</label><div class="val">${app.stay_type==='short'?'Short Stay — Type C':'Long Stay — Type D'}</div></div>
-        <div class="info-item"><label>Departure</label><div class="val">${fmt(app.departure_date)}</div></div>
-        <div class="info-item"><label>Return</label><div class="val">${fmt(app.return_date)}</div></div>
-        <div class="info-item"><label>Duration</label><div class="val">${esc(String(app.duration_days))} days</div></div>
-        <div class="info-item"><label>City</label><div class="val">${esc(app.appointment_city)}</div></div>
-      </div>
-
-      ${app.stay_type==='long'?`
-      <div class="section-label"><i class="fa fa-briefcase"></i> Long Stay Details</div>
-      <div class="info-grid">
-        <div class="info-item"><label>Employer / Institution</label><div class="val">${esc(app.employer_name||'—')}</div></div>
-        <div class="info-item"><label>Sponsor</label><div class="val">${esc(app.sponsor_name||'—')}</div></div>
-        <div class="info-item"><label>Address in Spain</label><div class="val">${esc(app.address_in_spain||'—')}</div></div>
-        <div class="info-item"><label>Specific Purpose</label><div class="val">${esc(app.long_stay_purpose||'—')}</div></div>
-      </div>`:''}
-
-      <div style="margin-top:18px;font-size:11px;color:#bbb;display:flex;align-items:center;gap:6px;">
-        <i class="fa fa-info-circle" style="color:var(--gold);"></i>
-        Submitted on ${fmtFull(app.created_at)}.
-        Fields marked <i class="fa fa-lock" style="margin:0 2px;"></i> cannot be changed after submission.
-      </div>`;
-  }
-
-  document.getElementById('profileCard').style.display = 'block';
-  document.getElementById('profileCard').scrollIntoView({ behavior:'smooth', block:'start' });
-}
-
-// ════════════════════════════════════════════════════════════
-//  LOGOUT
-// ════════════════════════════════════════════════════════════
-function doLogout() {
-  sessionStorage.removeItem('bls_logged_email');
-  document.getElementById('profileCard').style.display = 'none';
-  document.getElementById('loginCard').style.display   = 'block';
-  document.getElementById('pwdEmail').value    = '';
-  document.getElementById('pwdPass').value     = '';
-  document.getElementById('otpEmail').value    = '';
-  hideAlert('pwdError'); hideAlert('otpReqError'); hideAlert('otpVerifyError');
-  clearInterval(_resendTimer);
-  backToOtpStep1();
-  refreshCaptcha('pwd');
-  refreshCaptcha('otp');
-  window.scrollTo({ top:0, behavior:'smooth' });
-}
 
 // ── Micro helpers ────────────────────────────────────────────
 function esc(s) { if(!s)return'—'; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function fmt(d) { if(!d)return'—'; const x=new Date(d); return isNaN(x)?d:x.toLocaleDateString(i18nDateLocale(),{day:'2-digit',month:'short',year:'numeric'}); }
-function fmtFull(d) { if(!d)return'—'; const x=new Date(d); return isNaN(x)?d:x.toLocaleString(i18nDateLocale(),{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}); }
+
 function delay(ms) { return new Promise(r=>setTimeout(r,ms)); }

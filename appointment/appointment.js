@@ -1,9 +1,9 @@
 // ═══════════════════════════════════════════
 //  CONFIG
 // ═══════════════════════════════════════════
-// DB access ab backend ke through hota hai — koi DB key frontend mein nahi hai.
-// NOTE: server.js router ko '/api/users' pe mount karta hai, isliye yahan bhi wahi prefix hai.
-const API_BASE = '/api/users/appointment';
+// DB access now happens through the backend — no DB key lives in the frontend.
+// NOTE: server.js mounts this router at '/api/users', so the same prefix is used here.
+const API_BASE = `${apiUsersBase()}/appointment`; // from shared/config.js
 const EMAILJS_SERVICE_ID  = 'service_hd3wres';
 const EMAILJS_TEMPLATE_ID = 'template_99fbko5';
 const EMAILJS_PUBLIC_KEY  = 'QeXIWsIv2vyo-lEJH';
@@ -205,29 +205,11 @@ let apptRef = '';
 // ═══════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════
-// ── SAFETY NET ──────────────────────────────────────────────
-// This file calls i18nT()/i18nInit()/i18nDateLocale() (defined in
-// i18n-shared.js). If that file fails to load for any reason (wrong path,
-// missing from the folder, network hiccup), those calls would throw
-// "is not defined" and break the whole page. These fallbacks make sure
-// that NEVER happens — worst case, translations just don't apply.
-if (typeof i18nT !== 'function') {
-  window.i18nT = function (key, fallback) { return fallback !== undefined ? fallback : key; };
-  console.warn('i18n-shared.js did not load — check it is in the same folder as this page. Falling back to English.');
-}
-if (typeof i18nDateLocale !== 'function') {
-  window.i18nDateLocale = function () { return 'en-IN'; };
-}
-if (typeof i18nInit !== 'function') {
-  window.i18nInit = function () { /* no-op fallback */ };
-}
 
-document.addEventListener('DOMContentLoaded', () => {
-  if (typeof i18nInit === 'function') i18nInit({ switcherEl: '#langSwitcher' });
-});
 document.addEventListener('DOMContentLoaded', async () => {
   const loggedEmail = sessionStorage.getItem('bls_logged_email');
-  if (!loggedEmail) {
+  const authToken = sessionStorage.getItem('bls_token');
+  if (!loggedEmail || !authToken) {
     document.getElementById('accessGuard').style.display = 'block';
     return;
   }
@@ -244,11 +226,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     await loadTimeSlots(); // depends on LUNCH_ENABLED loaded above
 
     // Update UI with loaded settings
-    const counterNames = COUNTERS.join(' & ');
     const el1 = document.getElementById('counterInfoText');
     const el2 = document.getElementById('slotHeaderText');
     if (el1) el1.innerHTML = NUM_COUNTERS
-      ? `We have <strong>${NUM_COUNTERS} Counter${NUM_COUNTERS>1?'s':''} (${counterNames})</strong> running in parallel. Counter assigned automatically.`
+      ? `We have <strong>${NUM_COUNTERS} Counter${NUM_COUNTERS>1?'s':''}</strong> running in parallel. Counter assigned automatically.`
       : `Counter information is currently unavailable.`;
     if (el2) el2.textContent = BASE_SLOTS.length
       ? `${NUM_COUNTERS} counters · ${BASE_SLOTS.length * NUM_COUNTERS} slots/day`
@@ -258,9 +239,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const hasRegistration = await checkRegistrationExists(loggedEmail);
     if (!hasRegistration) return; // shows "fill registration" screen
 
-    // Check if user already has an appointment (by email OR mobile)
-    const alreadyBooked = await checkAlreadyBooked(loggedEmail);
-    if (alreadyBooked) return; // will redirect
+    // Multiple appointments are allowed per email now — this no longer
+    // blocks booking. It just shows an informational banner (with a link
+    // to Manage Appointment) if the applicant already has one or more.
+    await showExistingAppointmentsBanner(loggedEmail);
 
     await autoFillFromRegistration(loggedEmail);
   } catch(e) {
@@ -282,7 +264,10 @@ function showNotRegisteredScreen(email) {
 
 async function checkRegistrationExists(email) {
   try {
-    const res = await fetch(`${API_BASE}/registration/${encodeURIComponent(email)}`);
+    const token = sessionStorage.getItem('bls_token');
+    const res = await fetch(`${API_BASE}/registration/${encodeURIComponent(email)}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
     if (!res.ok) throw new Error('registration lookup failed');
     const data = await res.json();
 
@@ -298,59 +283,32 @@ async function checkRegistrationExists(email) {
   }
 }
 
-async function checkAlreadyBooked(email) {
+// Non-blocking: shows a small banner up top if the applicant already
+// has one or more appointments, with a link to manage them. Booking a
+// new one is still allowed — one email can hold multiple appointments.
+async function showExistingAppointmentsBanner(email) {
   try {
-    const res = await fetch(`${API_BASE}/check-booked/${encodeURIComponent(email)}`);
-    if (!res.ok) return false;
+    const token = sessionStorage.getItem('bls_token');
+    const res = await fetch(`${API_BASE}/my-appointments/${encodeURIComponent(email)}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) return;
     const data = await res.json();
-    if (data.alreadyBooked && data.appointment) {
-      showAlreadyBookedScreen(data.appointment);
-      return true;
-    }
-  } catch(_) {}
-  return false;
-}
+    const list = data.appointments || [];
+    if (!list.length) return;
 
-function showAlreadyBookedScreen(appt) {
-  document.getElementById('apptMain').style.display = 'none';
-  document.getElementById('accessGuard').style.display = 'none';
-
-  const screen = document.createElement('div');
-  screen.style.cssText = 'max-width:520px;margin:60px auto;padding:0 16px;text-align:center;';
-  screen.innerHTML = `
-    <div style="background:#fff;border-radius:10px;border:1px solid #ddd;box-shadow:0 2px 16px rgba(0,0,0,.08);padding:48px 36px;">
-      <div style="font-size:52px;color:#e74c3c;margin-bottom:16px;"><i class="fa fa-calendar-times"></i></div>
-      <h2 style="font-size:20px;color:#3a3a3a;margin-bottom:10px;">Appointment Already Booked</h2>
-      <p style="font-size:13px;color:#777;line-height:1.7;margin-bottom:20px;">
-        You already have an active appointment. Only <strong>one appointment</strong> is allowed per applicant.
-      </p>
-      <div style="background:#fdf8ed;border:2px solid #C8A951;border-radius:8px;padding:18px 20px;margin:20px 0;text-align:left;">
-        <table style="width:100%;font-size:13px;border-collapse:collapse;">
-          <tr><td style="padding:5px 0;color:#999;width:45%;">Reference No.</td><td style="font-weight:700;color:#C8A951;">${appt.reference_number}</td></tr>
-          <tr><td style="padding:5px 0;color:#999;">Date</td><td style="font-weight:600;color:#333;">${appt.appointment_date}</td></tr>
-          <tr><td style="padding:5px 0;color:#999;">Time</td><td style="font-weight:600;color:#333;">${appt.slot_time}</td></tr>
-          <tr><td style="padding:5px 0;color:#999;">Counter</td><td style="font-weight:600;color:#333;">${appt.counter}</td></tr>
-        </table>
-      </div>
-      <p style="font-size:12px;color:#999;margin-bottom:24px;">Redirecting to home in <strong id="countdown">5</strong> seconds...</p>
-      <a href="../login/login.html" style="padding:11px 28px;background:#C8A951;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:8px;">
-        <i class="fa fa-home"></i> Go to Home Now
-      </a>
-    </div>
-  `;
-  document.body.appendChild(screen);
-
-  // Countdown redirect
-  let secs = 5;
-  const timer = setInterval(() => {
-    secs--;
-    const el = document.getElementById('countdown');
-    if (el) el.textContent = secs;
-    if (secs <= 0) {
-      clearInterval(timer);
-      window.location.href = '../login/login.html';
-    }
-  }, 1000);
+    const apptMain = document.getElementById('apptMain');
+    if (!apptMain) return;
+    const banner = document.createElement('div');
+    banner.style.cssText = 'max-width:900px;margin:16px auto 0;background:#fdf8ed;border:1px solid #C8A951;border-radius:8px;padding:12px 18px;font-size:13px;color:#7a6520;display:flex;align-items:center;gap:10px;flex-wrap:wrap;';
+    banner.innerHTML = `
+      <i class="fa fa-circle-info" style="color:#C8A951;"></i>
+      <span>You already have <strong>${list.length}</strong> appointment${list.length > 1 ? 's' : ''} booked. You can still book another one below.</span>
+      <a href="manage.html" style="margin-left:auto;color:#6B6B6B;font-weight:700;text-decoration:none;">
+        <i class="fa fa-list-check"></i> Manage Appointments
+      </a>`;
+    apptMain.parentNode.insertBefore(banner, apptMain);
+  } catch (_) { /* silent — purely informational */ }
 }
 
 async function autoFillFromRegistration(email) {
@@ -823,7 +781,7 @@ function validateForm() {
   if (missingRequired.length) {
     ok = false;
     g('apptDocSection').scrollIntoView({ behavior: 'smooth', block: 'center' });
-    alert(i18nT('appt.alert.missing_docs', 'Please upload the following required document(s) before continuing:') + ' ' + missingRequired.map(d=>d.label).join(', '));
+    alert('Please upload the following required document(s) before continuing:' + ' ' + missingRequired.map(d=>d.label).join(', '));
   }
   return ok;
 }
@@ -899,7 +857,7 @@ function row(l,v) { return `<div class="confirm-item"><label>${l}</label><div cl
 async function submitAppointment() {
   const btn = g('btnSubmit');
   btn.disabled = true;
-  btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Booking...';
+  btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Verifying...';
   g('submitAlert').classList.remove('show');
 
   const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -921,6 +879,39 @@ async function submitAppointment() {
   const notes    = g('af_notes').value.trim();
   const slotTime = slotLabel(BASE_SLOTS[selectedSlotIdx]);
   const dateStr  = selectedDate.getDate()+' '+MONTHS_SHORT[selectedDate.getMonth()]+' '+selectedDate.getFullYear();
+
+  // ── IDENTITY VERIFICATION ────────────────────────────────────────
+  // Before we ever call /book, the applicant must answer 4 AI-generated
+  // questions built from the exact details they just entered (name,
+  // passport, dates, purpose, centre, etc.) — either by speaking the
+  // answer or picking from 4 MCQ options, their choice. All 4 must be
+  // correct. The backend hands back a one-time verification_token only
+  // if every answer checked out server-side; that token is required by
+  // /book below — booking can never proceed on the frontend's say-so
+  // alone. See appointment/verification.js for the full flow.
+  let verificationToken = null;
+  try {
+    verificationToken = await AppointmentVerify.runVerification({
+      full_name: name, email, mobile, passport_number: passport,
+      passport_issue: issue, passport_expiry: expiry,
+      purpose_of_visit: purpose, destination_country: country,
+      appointment_centre: centre, appointment_date: dateStr,
+      slot_time: slotTime, notes,
+    });
+  } catch (vErr) {
+    console.error('Verification error:', vErr);
+  }
+  if (!verificationToken) {
+    // Either the applicant failed verification (wrong answers — details
+    // could not be confirmed) or closed/cancelled the modal. Either way
+    // we do NOT proceed to booking.
+    g('submitAlertMsg').textContent = 'Identity verification was not completed, so the appointment was not booked. Please review your details and try again.';
+    g('submitAlert').classList.add('show');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa fa-paper-plane"></i> Book & Send Confirmation Email';
+    return;
+  }
+  btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Booking...';
 
   // Quick local check for instant UI feedback — the backend re-validates
   // this itself (with a row lock) before actually inserting, so this is
@@ -957,6 +948,7 @@ async function submitAppointment() {
         counter:             selectedCounter,
         notes:               notes,
         requested_services:  vasServices,
+        verification_token:  verificationToken,
       }),
     });
     const result = await res.json();
@@ -998,7 +990,7 @@ async function submitAppointment() {
     }
   } catch(e) {
     console.error('Booking error:', e);
-    g('submitAlertMsg').textContent = 'Server se connect nahi ho paaya. Please try again.';
+    g('submitAlertMsg').textContent = 'Could not connect to the server. Please try again.';
     g('submitAlert').classList.add('show');
     btn.disabled=false; btn.innerHTML='<i class="fa fa-paper-plane"></i> Book & Send Confirmation Email';
     return;
@@ -1052,47 +1044,47 @@ function doEmail(p) {
     centre:          p.centre,
     appointment_date:p.dateStr,
     appointment_time:p.slotTime,
-    counter:         i18nT('email.counter_label', 'Counter')+' '+p.counter,
+    counter:         'Counter'+' '+p.counter,
     reference:       p.apptRef,
-    notes:           p.notes||i18nT('email.none', 'None'),
-    letter_body: `${i18nT('email.dear', 'Dear')} ${p.name},
+    notes:           p.notes||'None',
+    letter_body: `${'Dear'} ${p.name},
 
-${i18nT('email.confirmed_intro', 'Your visa appointment at BLS International — Spain Visa Application Centre has been confirmed.')}
+${'Your visa appointment at BLS International — Spain Visa Application Centre has been confirmed.'}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-${i18nT('email.letter_heading', 'APPOINTMENT CONFIRMATION LETTER')}
+${'APPOINTMENT CONFIRMATION LETTER'}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-${i18nT('email.reference_no', 'Reference No.')}    : ${p.apptRef}
-${i18nT('email.applicant_name', 'Applicant Name')}   : ${p.name}
-${i18nT('email.passport_no', 'Passport No.')}     : ${p.passport}
-${i18nT('email.appointment_date', 'Appointment Date')} : ${p.dateStr}
-${i18nT('email.appointment_time', 'Appointment Time')} : ${p.slotTime} (${i18nT('email.thirty_min', '30 minutes')})
-${i18nT('email.counter_label', 'Counter')}          : ${i18nT('email.counter_label', 'Counter')} ${p.counter}
-${i18nT('email.centre', 'Centre')}           : ${p.centre}
-${i18nT('email.purpose_of_visit', 'Purpose of Visit')} : ${p.purpose}
-${i18nT('email.destination', 'Destination')}      : ${p.country || '—'}
+${'Reference No.'}    : ${p.apptRef}
+${'Applicant Name'}   : ${p.name}
+${'Passport No.'}     : ${p.passport}
+${'Appointment Date'} : ${p.dateStr}
+${'Appointment Time'} : ${p.slotTime} (${'30 minutes'})
+${'Counter'}          : ${'Counter'} ${p.counter}
+${'Centre'}           : ${p.centre}
+${'Purpose of Visit'} : ${p.purpose}
+${'Destination'}      : ${p.country || '—'}
 ${(p.vasServices && p.vasServices.length) ? `
-${i18nT('email.vas_requested', 'VALUE ADDED SERVICES REQUESTED:')}
+${'VALUE ADDED SERVICES REQUESTED:'}
 ${p.vasServices.map((s,i)=>`  ${i+1}. ${s.name}${s.qty>1?' x'+s.qty:''} — ₹${(s.amount*s.qty).toFixed(2)}`).join('\n')}
-  ${i18nT('email.est_services_total', 'Estimated Services Total:')} ₹${p.vasServices.reduce((a,s)=>a+s.amount*s.qty,0).toFixed(2)}
-  (${i18nT('email.final_charges_note', 'Final charges will be confirmed by the centre at the time of your visit.')})
+  ${'Estimated Services Total:'} ₹${p.vasServices.reduce((a,s)=>a+s.amount*s.qty,0).toFixed(2)}
+  (${'Final charges will be confirmed by the centre at the time of your visit.'})
 ` : ''}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-${i18nT('email.important_instructions', 'IMPORTANT INSTRUCTIONS:')}
-${i18nT('email.instr_arrive', '• Please arrive 15 minutes before your scheduled time.')}
-${i18nT('email.instr_carry', '• Carry this confirmation letter (print or digital).')}
-${i18nT('email.instr_bring_docs', '• Bring all original documents + photocopies.')}
-${i18nT('email.instr_report', '• Report to Counter')} ${p.counter} ${i18nT('email.instr_report_end', 'at the centre.')}
+${'IMPORTANT INSTRUCTIONS:'}
+${'• Please arrive 15 minutes before your scheduled time.'}
+${'• Carry this confirmation letter (print or digital).'}
+${'• Bring all original documents + photocopies.'}
+${'• Report to Counter'} ${p.counter} ${'at the centre.'}
 
-${i18nT('email.change_slot_heading', 'NEED TO CHANGE YOUR DATE OR TIME SLOT?')}
-${i18nT('email.change_slot_body', 'Visit our booking page or reply to this email with your reference number and preferred new date/time.')}
+${'NEED TO CHANGE YOUR DATE OR TIME SLOT?'}
+${'Visit our booking page or reply to this email with your reference number and preferred new date/time.'}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 BLS International — Spain Visa Application Centre
-${i18nT('email.phone_label', 'Phone:')} +91-11-43750006
-${i18nT('email.email_label', 'Email:')} info@blsindia-spain.com
-${i18nT('email.hours_label', 'Hours:')} Mon–Fri, 9:00 AM – 5:00 PM
+${'Phone:'} +91-11-43750006
+${'Email:'} info@blsindia-spain.com
+${'Hours:'} Mon–Fri, 9:00 AM – 5:00 PM
 `.trim()
   })
   .then(()=>console.info('Email sent to',p.email))
@@ -1104,4 +1096,4 @@ ${i18nT('email.hours_label', 'Hours:')} Mon–Fri, 9:00 AM – 5:00 PM
 // ═══════════════════════════════════════════
 function g(id) { return document.getElementById(id); }
 function setVal(id,v) { const el=g(id); if(el&&v) el.value=String(v).trim(); }
-function fmt(d) { if(!d) return '—'; const x=new Date(d); return isNaN(x)?d:x.toLocaleDateString(i18nDateLocale(),{day:'2-digit',month:'short',year:'numeric'}); }
+function fmt(d) { if(!d) return '—'; const x=new Date(d); return isNaN(x)?d:x.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}); }

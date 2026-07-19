@@ -5,34 +5,32 @@
 // ═══════════════════════════════════════════
 
 // Same Supabase project used across the site (script.js / admin.js)
-const SUPABASE_URL  = 'https://cnpuceqzubaolbfxqpge.supabase.co';
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNucHVjZXF6dWJhb2xiZnhxcGdlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5OTYxNzcsImV4cCI6MjA5NjU3MjE3N30.ZaxtjTXyVQIZytf3ChiCgr1tf-N7er2yqZ4pzv0za7E';
+// SUPABASE_URL / SUPABASE_ANON now come from shared/config.js (window.APP_CONFIG)
 
-const supabaseConfigured = SUPABASE_URL !== 'YOUR_SUPABASE_URL';
+const supabaseConfigured = window.APP_CONFIG.SUPABASE_URL !== 'YOUR_SUPABASE_URL';
 let supabaseClient = null;
 if (supabaseConfigured && typeof supabase !== 'undefined') {
-  supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+  supabaseClient = supabase.createClient(window.APP_CONFIG.SUPABASE_URL, window.APP_CONFIG.SUPABASE_ANON_KEY);
 }
 
-// ── SAFETY NET ──────────────────────────────────────────────
-// This file calls i18nT()/i18nInit()/i18nDateLocale() (defined in
-// i18n-shared.js). If that file fails to load for any reason (wrong path,
-// missing from the folder, network hiccup), those calls would throw
-// "is not defined" and break the whole page. These fallbacks make sure
-// that NEVER happens — worst case, translations just don't apply.
-if (typeof i18nT !== 'function') {
-  window.i18nT = function (key, fallback) { return fallback !== undefined ? fallback : key; };
-  console.warn('i18n-shared.js did not load — check it is in the same folder as this page. Falling back to English.');
-}
-if (typeof i18nDateLocale !== 'function') {
-  window.i18nDateLocale = function () { return 'en-IN'; };
-}
-if (typeof i18nInit !== 'function') {
-  window.i18nInit = function () { /* no-op fallback */ };
-}
 
 document.addEventListener('DOMContentLoaded', () => {
-  if (typeof i18nInit === 'function') i18nInit({ switcherEl: '#langSwitcher' });
+
+  // ✅ If we arrived here from the dashboard's "View Full Application" link
+  // (?ref=...&passport=...), auto-fill the lookup fields and search right
+  // away instead of making the user type their own details back in.
+  const params = new URLSearchParams(window.location.search);
+  const qRef = params.get('ref');
+  const qPassport = params.get('passport');
+  if (qRef && qPassport) {
+    const refEl = document.getElementById('refInput');
+    const passEl = document.getElementById('passportInput');
+    if (refEl && passEl) {
+      refEl.value = qRef;
+      passEl.value = qPassport;
+      if (typeof trackApplication === 'function') trackApplication();
+    }
+  }
 });
 
 // ── The 12 tracking stages ─────────────────────────────────────
@@ -75,34 +73,14 @@ function loadStageConfig() {
 
       if (error) throw error;
       if (data && data.length) {
-        // Merge in translated titles/descriptions for the current site language
-        // (see i18n-shared.js), falling back to the base English columns.
-        let langCode = null;
-        try { langCode = localStorage.getItem('bls_site_lang'); } catch (e) { /* ignore */ }
-        let transByStage = {};
-        if (langCode && langCode !== 'en') {
-          try {
-            const { data: trans } = await supabaseClient
-              .from('tracking_stage_translations')
-              .select('stage, title, description, title_alt, description_alt')
-              .eq('language_code', langCode);
-            (trans || []).forEach(t => { transByStage[t.stage] = t; });
-          } catch (e) {
-            console.warn('tracking_stage_translations lookup failed (non-fatal):', e);
-          }
-        }
-
-        TRACK_STEPS = data.map(row => {
-          const t = transByStage[row.stage];
-          return {
-            stage: row.stage,
-            icon: row.icon || 'fa-circle',
-            title: (t && t.title) || row.title,
-            desc: (t && t.description) || row.description || '',
-            titleAlt: (t && t.title_alt) || row.title_alt || undefined,
-            descAlt: (t && t.description_alt) || row.description_alt || undefined,
-          };
-        });
+        TRACK_STEPS = data.map(row => ({
+          stage: row.stage,
+          icon: row.icon || 'fa-circle',
+          title: row.title,
+          desc: row.description || '',
+          titleAlt: row.title_alt || undefined,
+          descAlt: row.description_alt || undefined,
+        }));
       }
     } catch (e) {
       console.warn('Could not load tracking_stage_config, using fallback labels', e);
@@ -143,7 +121,7 @@ window.resetLookup = function () {
 function fmtDate(d) {
   if (!d) return '—';
   try {
-    return new Date(d).toLocaleDateString(i18nDateLocale(), { day: '2-digit', month: 'short', year: 'numeric' });
+    return new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
   } catch (e) { return d; }
 }
 
@@ -153,8 +131,8 @@ window.trackApplication = async function () {
   const ref = $('refInput').value.trim().toUpperCase();
   const passport = $('passportInput').value.trim().toUpperCase();
 
-  if (!ref) { showLookupError(i18nT('track.err.no_ref', 'Please enter your Appointment Number.')); $('refInput').focus(); return; }
-  if (!passport) { showLookupError(i18nT('track.err.no_passport', 'Please enter your Passport Number.')); $('passportInput').focus(); return; }
+  if (!ref) { showLookupError('Please enter your Appointment Number.'); $('refInput').focus(); return; }
+  if (!passport) { showLookupError('Please enter your Passport Number.'); $('passportInput').focus(); return; }
 
   const btn = $('trackBtn');
   btn.disabled = true;
@@ -162,7 +140,7 @@ window.trackApplication = async function () {
 
   try {
     const res = await fetch(
-      `http://localhost:5000/api/users/visa/track/${encodeURIComponent(ref)}/${encodeURIComponent(passport)}`
+      `${apiUsersBase()}/visa/track/${encodeURIComponent(ref)}/${encodeURIComponent(passport)}`
     );
     const result = await res.json();
 
@@ -171,7 +149,7 @@ window.trackApplication = async function () {
     const data = result.application;
 
     if (!data) {
-      showLookupError(i18nT('track.err.not_found', 'No application found. Please check your Appointment Number and Passport Number and try again.'));
+      showLookupError('No application found. Please check your Appointment Number and Passport Number and try again.');
       return;
     }
 
@@ -179,7 +157,7 @@ window.trackApplication = async function () {
     renderResult(data);
   } catch (err) {
     console.error('Track lookup error:', err);
-    showLookupError(i18nT('track.err.generic', 'Something went wrong while searching. Please try again in a moment.'));
+    showLookupError('Something went wrong while searching. Please try again in a moment.');
   } finally {
     btn.disabled = false;
     btn.innerHTML = '<i class="fa fa-magnifying-glass"></i> Track';

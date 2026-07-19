@@ -11,17 +11,15 @@
 <body>
 
 <header class="site-header">
-  <span id="langSwitcher" style="display:none;"></span>
   <div class="header-main">
     <div class="header-logo">
-      <div class="logo-mark">
-        <span class="logo-bls">BLS</span>
-        <span class="logo-intl">INTERNATIONAL</span>
+      <div class="logo-mark logo-img-wrap">
+        <img src="../assets/bls-logo.png" alt="BLS International" class="logo-img">
       </div>
       <div class="logo-divider"></div>
       <div class="logo-sub">
-        <span class="logo-sub-top" data-i18n="header.tagline.top">Official Visa Application Centre</span>
-        <span class="logo-sub-bot" data-i18n="header.tagline.bot">Spain Schengen &amp; National Visas — India</span>
+        <span class="logo-sub-top">Official Visa Application Centre</span>
+        <span class="logo-sub-bot">Spain Schengen &amp; National Visas — India</span>
       </div>
     </div>
   </div>
@@ -29,20 +27,21 @@
 
 <div class="page-title-bar">
   <i class="fa fa-search"></i>
-  <span data-i18n="track.page_title">Track Application</span>
+  <span>Track Application</span>
   <div class="breadcrumb">
-    <a href="../login/login.html" data-i18n="nav.home">Home</a> &rsaquo; <span data-i18n="track.page_title">Track Application</span>
+    <a href="../dashboard/dashboard.html">Home</a> &rsaquo; <span>Track Application</span>
   </div>
 </div>
 
 <div class="page-layout">
 
   <nav class="side-nav">
-    <a href="../login/login.html"><i class="fa fa-home"></i> <span data-i18n="nav.home">Home</span></a>
-    <a href="track.html" class="active"><i class="fa fa-search"></i> <span data-i18n="nav.track">Track Application</span></a>
-    <a href="../Visa application/index.html"><i class="fa fa-passport"></i> <span data-i18n="nav.visa">Visa Services</span></a>
-    <a href="../appointment/appointment.html"><i class="fa fa-calendar-check"></i> <span data-i18n="nav.appointments">Appointments</span></a>
-    <a href="../documents/documents.html"><i class="fa fa-file-alt"></i> <span data-i18n="nav.documents">Documents Checklist</span></a>
+    <a href="../dashboard/dashboard.html"><i class="fa fa-home"></i> <span>Home</span></a>
+    <a href="track.html" class="active"><i class="fa fa-search"></i> <span>Track Application</span></a>
+    <a href="../Visa application/index.html"><i class="fa fa-passport"></i> <span>Visa Services</span></a>
+    <a href="../appointment/appointment.html"><i class="fa fa-calendar-check"></i> <span>Appointments</span></a>
+    <a href="../appointment/manage.html"><i class="fa fa-list-check"></i> <span>Manage Appointment</span></a>
+    <a href="../documents/documents.html"><i class="fa fa-file-alt"></i> <span>Documents Checklist</span></a>
   </nav>
 
   <div class="main-content">
@@ -51,19 +50,19 @@
   <!-- LOOKUP -->
   <div class="lookup-card">
     <div class="lookup-icon"><i class="fa fa-route"></i></div>
-    <h2 data-i18n="track.lookup.title">Track Your Visa Application</h2>
-    <p class="sub" data-i18n="track.lookup.sub">Enter your Appointment Number and Passport Number to view live status.</p>
+    <h2>Track Your Visa Application</h2>
+    <p class="sub">Enter your Appointment Number and Passport Number to view live status.</p>
 
     <div class="lookup-form">
       <div class="lookup-field">
-        <label for="refInput" data-i18n="track.lookup.ref_label">Appointment Number</label>
+        <label for="refInput">Appointment Number</label>
         <input type="text" id="refInput" placeholder="e.g. APT-2026-XXXXXX" onkeydown="if(event.key==='Enter') document.getElementById('passportInput').focus();" />
       </div>
       <div class="lookup-field">
-        <label for="passportInput" data-i18n="track.lookup.passport_label">Passport Number</label>
+        <label for="passportInput">Passport Number</label>
         <input type="text" id="passportInput" placeholder="e.g. A1234567" onkeydown="if(event.key==='Enter') trackApplication();" />
       </div>
-      <button class="btn-gold" id="trackBtn" onclick="trackApplication()"><i class="fa fa-magnifying-glass"></i> <span data-i18n="track.lookup.btn">Track</span></button>
+      <button class="btn-gold" id="trackBtn" onclick="trackApplication()"><i class="fa fa-magnifying-glass"></i> <span>Track</span></button>
     </div>
 
     <div class="lookup-msg error" id="lookupMsg"><i class="fa fa-circle-exclamation"></i><span id="lookupMsgText"></span></div>
@@ -76,25 +75,25 @@
       <div class="rs-top">
         <div>
           <div class="rs-name" id="rsName">—</div>
-          <div class="rs-ref"><span data-i18n="track.result.ref">Appointment No.</span> <strong id="rsRef">—</strong></div>
+          <div class="rs-ref"><span>Appointment No.</span> <strong id="rsRef">—</strong></div>
         </div>
         <div class="rs-status-pill" id="rsStatusPill">—</div>
       </div>
       <div class="rs-grid">
-        <div class="rs-item"><div class="rl" data-i18n="track.result.visa_type">Purpose of Visit</div><div class="rv" id="rsVisaType">—</div></div>
-        <div class="rs-item"><div class="rl" data-i18n="track.result.destination">Destination</div><div class="rv" id="rsDestination">—</div></div>
-        <div class="rs-item"><div class="rl" data-i18n="track.result.submitted">Submitted On</div><div class="rv" id="rsSubmitted">—</div></div>
+        <div class="rs-item"><div class="rl">Purpose of Visit</div><div class="rv" id="rsVisaType">—</div></div>
+        <div class="rs-item"><div class="rl">Destination</div><div class="rv" id="rsDestination">—</div></div>
+        <div class="rs-item"><div class="rl">Submitted On</div><div class="rv" id="rsSubmitted">—</div></div>
       </div>
     </div>
 
     <div class="timeline-card">
-      <h3><i class="fa fa-timeline"></i> <span data-i18n="track.timeline.title">Application Progress</span></h3>
-      <p class="tc-sub" data-i18n="track.timeline.sub">Each stage turns green once completed by BLS International / Embassy. Stages not yet reached remain red.</p>
+      <h3><i class="fa fa-timeline"></i> <span>Application Progress</span></h3>
+      <p class="tc-sub">Each stage turns green once completed by BLS International / Embassy. Stages not yet reached remain red.</p>
       <div class="timeline" id="timelineList"><!-- filled by JS --></div>
     </div>
 
     <div class="result-actions">
-      <button class="btn-outline-lite" onclick="resetLookup()"><i class="fa fa-rotate-left"></i> <span data-i18n="track.actions.another">Track Another Application</span></button>
+      <button class="btn-outline-lite" onclick="resetLookup()"><i class="fa fa-rotate-left"></i> <span>Track Another Application</span></button>
     </div>
 
   </div>
@@ -105,7 +104,7 @@
 </div><!-- /page-layout -->
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="i18n-shared.js"></script>
+<script src="../shared/config.js"></script>
 <script src="track.js"></script>
 </body>
 </html>

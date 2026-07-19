@@ -205,3 +205,32 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:var(--bg
   .info-grid{grid-template-columns:1fr;}
   .otp-box{width:40px;height:46px;font-size:18px;}
 }
+/* ═══ REGISTRATION-REQUIRED POPUP ═══ */
+.reg-modal-overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);
+  z-index:1000;align-items:center;justify-content:center;padding:20px;
+}
+.reg-modal-overlay.show{display:flex;}
+.reg-modal{
+  background:#fff;border-radius:10px;max-width:420px;width:100%;
+  padding:30px 26px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.25);
+  animation:regModalIn .18s ease-out;
+}
+@keyframes regModalIn{from{opacity:0;transform:translateY(-10px) scale(.97);}to{opacity:1;transform:translateY(0) scale(1);}}
+.reg-modal-icon{
+  width:56px;height:56px;border-radius:50%;background:#fff5f5;border:2px solid #e74c3c;
+  color:#e74c3c;font-size:24px;display:flex;align-items:center;justify-content:center;
+  margin:0 auto 16px;
+}
+.reg-modal h3{margin:0 0 10px;font-size:17px;color:#333;}
+.reg-modal p{margin:0 0 22px;font-size:13.5px;color:#666;line-height:1.5;}
+.reg-modal-actions{display:flex;flex-direction:column;gap:10px;}
+.reg-modal-actions .btn-primary{width:100%;}
+.reg-modal-close{
+  background:none;border:none;color:#999;font-size:12.5px;cursor:pointer;
+  text-decoration:underline;padding:4px;font-family:inherit;
+}
+.reg-modal-close:hover{color:#666;}
+
+.logo-img-wrap{background:#fff;padding:6px 16px;border-radius:8px;}
+.logo-img{height:40px;display:block;}

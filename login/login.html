@@ -11,19 +11,17 @@
 <body>
 
   <!-- HEADER -->
-  <span id="langSwitcher" style="display:none;"></span>
   <header class="site-header">
     <div class="header-main">
       <div class="header-main-row">
         <div class="header-logo">
-          <div class="logo-mark">
-            <span class="logo-bls">BLS</span>
-            <span class="logo-intl">INTERNATIONAL</span>
+          <div class="logo-mark logo-img-wrap">
+            <img src="../assets/bls-logo.png" alt="BLS International" class="logo-img">
           </div>
           <div class="logo-divider"></div>
           <div style="display:flex;flex-direction:column;gap:3px;">
-            <span class="logo-sub-top" data-i18n="header.tagline.top">Official Visa Application Centre</span>
-            <span class="logo-sub-bot" data-i18n="header.tagline.bot">Spain Schengen &amp; National Visas — India</span>
+            <span class="logo-sub-top">Official Visa Application Centre</span>
+            <span class="logo-sub-bot">Spain Schengen &amp; National Visas — India</span>
           </div>
         </div>
         <!-- <div class="header-badges">
@@ -35,22 +33,22 @@
     </div>
     <nav class="header-nav">
       <div class="nav-inner">
-        <a href="login.html"><i class="fa fa-home"></i> <span data-i18n="nav.home">Home</span></a>
-        <a href="login.html"><i class="fa fa-search"></i> <span data-i18n="nav.track">Track Application</span></a>
-        <a href="login.html"><i class="fa fa-passport"></i> <span data-i18n="nav.visa">Visa Services</span></a>
-        <a href="login.html"><i class="fa fa-calendar-check"></i> <span data-i18n="nav.appointments">Appointments</span></a>
-        <a href="../documents/documents.html"><i class="fa fa-file-alt"></i> <span data-i18n="nav.documents">Documents Checklist</span></a>
-        <a href="login.html"><i class="fa fa-envelope"></i> <span data-i18n="nav.contact">Contact Us</span></a>
-        <a href="login.html" class="active"><i class="fa fa-user"></i> <span data-i18n="login.nav.my_account">My Account</span></a>
+        <a href="login.html"><i class="fa fa-home"></i> <span>Home</span></a>
+        <a href="login.html"><i class="fa fa-search"></i> <span>Track Application</span></a>
+        <a href="login.html"><i class="fa fa-passport"></i> <span>Visa Services</span></a>
+        <a href="login.html"><i class="fa fa-calendar-check"></i> <span>Appointments</span></a>
+        <a href="../Document/document.html"><i class="fa fa-file-alt"></i> <span>Documents Checklist</span></a>
+        <a href="login.html"><i class="fa fa-envelope"></i> <span>Contact Us</span></a>
+        <a href="login.html" class="active"><i class="fa fa-user"></i> <span>My Account</span></a>
       </div>
     </nav>
   </header>
 
   <div class="page-title-bar">
     <i class="fa fa-user-circle"></i>
-    <span data-i18n="login.page_title">Applicant Login</span>
+    <span>Applicant Login</span>
     <div class="breadcrumb">
-      <a href="login.html" data-i18n="nav.home">Home</a> &rsaquo; <span data-i18n="login.nav.my_account">My Account</span>
+      <a href="login.html">Home</a> &rsaquo; <span>My Account</span>
     </div>
   </div>
 
@@ -66,11 +64,11 @@
 
     <!-- LEFT SIDEBAR NAV -->
     <nav class="side-nav">
-      <a href="login.html" class="active"><i class="fa fa-home"></i><span data-i18n="nav.home">Home</span></a>
-      <a href="login.html"><i class="fa fa-search"></i><span data-i18n="nav.track">Track Application</span></a>
-      <a href="../Visa application/index.html"><i class="fa fa-passport"></i><span data-i18n="nav.visa">Visa Services</span></a>
-      <a href="../appointment/appointment.html" id="navBookAppointment" style="display:none; background:linear-gradient(135deg,#C8A951,#a8843a); color:#fff; border-left:4px solid #fff; font-weight:700; animation:pulse-gold 1.5s ease-in-out infinite;"><i class="fa fa-calendar-plus"></i><span data-i18n="nav.appointments">Book Appointment</span></a>
-      <a href="../documents/documents.html"><i class="fa fa-file-alt"></i><span data-i18n="nav.documents">Documents Checklist</span></a>
+      <a href="login.html" class="active"><i class="fa fa-home"></i><span>Home</span></a>
+      <a href="login.html"><i class="fa fa-search"></i><span>Track Application</span></a>
+      <a href="../Visa application/index.html"><i class="fa fa-passport"></i><span>Visa Services</span></a>
+      <a href="../appointment/appointment.html" id="navBookAppointment" style="display:none; background:linear-gradient(135deg,#C8A951,#a8843a); color:#fff; border-left:4px solid #fff; font-weight:700; animation:pulse-gold 1.5s ease-in-out infinite;"><i class="fa fa-calendar-plus"></i><span>Book Appointment</span></a>
+      <a href="../documents/documents.html"><i class="fa fa-file-alt"></i><span>Documents Checklist</span></a>
     </nav>
 
     <!-- MAIN CONTENT -->
@@ -83,18 +81,18 @@
       <div class="card-header">
         <i class="fa fa-user-circle hicon"></i>
         <div>
-          <h2 data-i18n="login.signin.title">Sign In to Your Account</h2>
-          <p data-i18n="login.signin.sub">Access your visa application details and status.</p>
+          <h2>Sign In to Your Account</h2>
+          <p>Access your visa application details and status.</p>
         </div>
       </div>
 
       <!-- TABS -->
       <div class="tab-bar">
         <button class="tab-btn active" id="tabBtnPwd" onclick="switchTab('pwd')">
-          <i class="fa fa-lock"></i> <span data-i18n="login.tab.password">Password Login</span>
+          <i class="fa fa-lock"></i> <span>Password Login</span>
         </button>
         <button class="tab-btn" id="tabBtnOtp" onclick="switchTab('otp')">
-          <i class="fa fa-envelope-open-text"></i> <span data-i18n="login.tab.otp">Email OTP</span>
+          <i class="fa fa-envelope-open-text"></i> <span>Email OTP</span>
         </button>
       </div>
 
@@ -102,19 +100,19 @@
       <div class="tab-panel active" id="panelPwd">
         <div class="alert alert-error" id="pwdError">
           <i class="fa fa-exclamation-circle"></i>
-          <span id="pwdErrorMsg" data-i18n="login.err.invalid_credentials">Invalid email or password.</span>
+          <span id="pwdErrorMsg">Invalid email or password.</span>
         </div>
 
         <div class="field">
-          <label for="pwdEmail"><span data-i18n="visa.field.email">Email Address</span> <span class="req">*</span></label>
-          <input type="email" id="pwdEmail" placeholder="Enter your registered email" data-i18n-placeholder="login.ph.registered_email" autocomplete="email" />
+          <label for="pwdEmail"><span>Email Address</span> <span class="req">*</span></label>
+          <input type="email" id="pwdEmail" placeholder="Enter your registered email" autocomplete="email" />
           <span class="err-msg" id="pwdEmailErr"></span>
         </div>
 
         <div class="field">
-          <label for="pwdPass"><span data-i18n="visa.field.password">Password</span> <span class="req">*</span></label>
+          <label for="pwdPass"><span>Password</span> <span class="req">*</span></label>
           <div class="pass-wrap">
-            <input type="password" id="pwdPass" placeholder="Enter your password" data-i18n-placeholder="login.ph.password" autocomplete="current-password" />
+            <input type="password" id="pwdPass" placeholder="Enter your password" autocomplete="current-password" />
             <button class="pass-toggle" type="button" onclick="togglePass('pwdPass','eyePwd')" title="Show / hide">
               <i class="fa fa-eye" id="eyePwd"></i>
             </button>
@@ -123,7 +121,7 @@
         </div>
 
         <div class="field">
-          <label for="pwdCaptchaInput"><span data-i18n="visa.field.security_code">Security Code</span> <span class="req">*</span></label>
+          <label for="pwdCaptchaInput"><span>Security Code</span> <span class="req">*</span></label>
           <div class="captcha-row">
             <div class="captcha-canvas-wrap">
               <canvas id="pwdCaptchaCanvas" width="120" height="46"></canvas>
@@ -131,18 +129,18 @@
             <button type="button" class="captcha-refresh" onclick="refreshCaptcha('pwd')" title="Get a new code">
               <i class="fa fa-rotate"></i>
             </button>
-            <input type="text" id="pwdCaptchaInput" placeholder="Enter code above" data-i18n-placeholder="visa.ph.enter_code_above" maxlength="6" autocomplete="off" />
+            <input type="text" id="pwdCaptchaInput" placeholder="Enter code above" maxlength="6" autocomplete="off" />
           </div>
           <span class="err-msg" id="pwdCaptchaErr"></span>
         </div>
 
         <button class="btn-primary" id="pwdLoginBtn" onclick="doPasswordLogin()">
-          <i class="fa fa-sign-in-alt"></i> <span data-i18n="login.btn.sign_in">Sign In</span>
+          <i class="fa fa-sign-in-alt"></i> <span>Sign In</span>
         </button>
 
-        <div class="divider"><hr /><span data-i18n="login.new_applicant">New applicant?</span><hr /></div>
+        <div class="divider"><hr /><span>New applicant?</span><hr /></div>
         <a href="../Visa application/index.html" class="btn-ghost">
-          <i class="fa fa-user-plus"></i> <span data-i18n="login.btn.register">Register — Start New Application</span>
+          <i class="fa fa-user-plus"></i> <span>Register — Start New Application</span>
         </a>
       </div>
 
@@ -153,17 +151,17 @@
         <div id="otpStep1">
           <div class="alert alert-error" id="otpReqError">
             <i class="fa fa-exclamation-circle"></i>
-            <span id="otpReqErrorMsg" data-i18n="login.err.otp_send_failed">Could not send OTP. Please try again.</span>
+            <span id="otpReqErrorMsg">Could not send OTP. Please try again.</span>
           </div>
 
           <div class="field">
-            <label for="otpEmail"><span data-i18n="visa.field.email">Email Address</span> <span class="req">*</span></label>
-            <input type="email" id="otpEmail" placeholder="Enter your registered email" data-i18n-placeholder="login.ph.registered_email" autocomplete="email" />
+            <label for="otpEmail"><span>Email Address</span> <span class="req">*</span></label>
+            <input type="email" id="otpEmail" placeholder="Enter your registered email" autocomplete="email" />
             <span class="err-msg" id="otpEmailErr"></span>
           </div>
 
           <div class="field">
-            <label for="otpCaptchaInput"><span data-i18n="visa.field.security_code">Security Code</span> <span class="req">*</span></label>
+            <label for="otpCaptchaInput"><span>Security Code</span> <span class="req">*</span></label>
             <div class="captcha-row">
               <div class="captcha-canvas-wrap">
                 <canvas id="otpCaptchaCanvas" width="120" height="46"></canvas>
@@ -171,18 +169,18 @@
               <button type="button" class="captcha-refresh" onclick="refreshCaptcha('otp')" title="Get a new code">
                 <i class="fa fa-rotate"></i>
               </button>
-              <input type="text" id="otpCaptchaInput" placeholder="Enter code above" data-i18n-placeholder="visa.ph.enter_code_above" maxlength="6" autocomplete="off" />
+              <input type="text" id="otpCaptchaInput" placeholder="Enter code above" maxlength="6" autocomplete="off" />
             </div>
             <span class="err-msg" id="otpCaptchaErr"></span>
           </div>
 
           <button class="btn-primary" id="sendOtpBtn" onclick="doSendOtp()">
-            <i class="fa fa-paper-plane"></i> <span data-i18n="login.btn.send_otp">Send OTP to Email</span>
+            <i class="fa fa-paper-plane"></i> <span>Send OTP to Email</span>
           </button>
 
-          <div class="divider"><hr /><span data-i18n="login.new_applicant">New applicant?</span><hr /></div>
+          <div class="divider"><hr /><span>New applicant?</span><hr /></div>
           <a href="index.html" class="btn-ghost">
-            <i class="fa fa-user-plus"></i> <span data-i18n="login.btn.register">Register — Start New Application</span>
+            <i class="fa fa-user-plus"></i> <span>Register — Start New Application</span>
           </a>
         </div>
 
@@ -190,16 +188,16 @@
         <div id="otpStep2" style="display:none;">
           <div class="otp-sent-note show" id="otpSentNote">
             <i class="fa fa-envelope-open-text"></i>
-            <span><span data-i18n="login.otp.sent1">A 6-digit OTP has been sent to</span> <strong id="otpSentEmail">—</strong>. <span data-i18n="login.otp.sent2">Enter it below.</span></span>
+            <span><span>A 6-digit OTP has been sent to</span> <strong id="otpSentEmail">—</strong>. <span>Enter it below.</span></span>
           </div>
 
           <div class="alert alert-error" id="otpVerifyError">
             <i class="fa fa-exclamation-circle"></i>
-            <span id="otpVerifyErrorMsg" data-i18n="visa.otp.incorrect">Incorrect OTP. Please try again.</span>
+            <span id="otpVerifyErrorMsg">Incorrect OTP. Please try again.</span>
           </div>
 
           <div class="field">
-            <label><span data-i18n="login.otp.enter_digit">Enter 6-digit OTP</span> <span class="req">*</span></label>
+            <label><span>Enter 6-digit OTP</span> <span class="req">*</span></label>
             <div class="otp-row" id="otpBoxRow">
               <input class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]" id="otp0" />
               <input class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]" id="otp1" />
@@ -209,19 +207,19 @@
               <input class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]" id="otp5" />
             </div>
             <div class="resend-row">
-              <span id="resendTimer"><span data-i18n="visa.otp.resend_in">Resend code in</span> <strong id="resendCount">60</strong>s</span>
+              <span id="resendTimer"><span>Resend code in</span> <strong id="resendCount">60</strong>s</span>
               <span id="resendLink" style="display:none;">
-                <span data-i18n="login.otp.not_received">Didn't receive it?</span> <button id="resendBtn" onclick="doSendOtp(true)" data-i18n="login.otp.resend">Resend OTP</button>
+                <span>Didn't receive it?</span> <button id="resendBtn" onclick="doSendOtp(true)">Resend OTP</button>
               </span>
             </div>
           </div>
 
           <button class="btn-primary" id="verifyOtpBtn" onclick="doVerifyOtp()">
-            <i class="fa fa-check-circle"></i> <span data-i18n="login.btn.verify_signin">Verify &amp; Sign In</span>
+            <i class="fa fa-check-circle"></i> <span>Verify &amp; Sign In</span>
           </button>
 
           <button class="btn-outline-gold" onclick="backToOtpStep1()">
-            <i class="fa fa-arrow-left"></i> <span data-i18n="login.btn.change_email">Change Email</span>
+            <i class="fa fa-arrow-left"></i> <span>Change Email</span>
           </button>
         </div>
 
@@ -232,30 +230,29 @@
       </div>
     </div><!-- /login-card -->
 
-    <!-- PROFILE CARD -->
-    <div class="profile-card" id="profileCard">
-      <div class="profile-header">
-        <div class="profile-avatar"><i class="fa fa-user"></i></div>
-        <div>
-          <h3 id="profileName">Applicant</h3>
-          <p id="profileEmail">—</p>
-        </div>
-        <a href="../appointment/appointment.html" class="book-appt-btn">
-          <i class="fa fa-calendar-check"></i> <span data-i18n="nav.appointments">Book Appointment</span>
-        </a>
-        <button class="logout-btn" onclick="doLogout()">
-          <i class="fa fa-sign-out-alt"></i> <span data-i18n="login.btn.logout">Logout</span>
-        </button>
-      </div>
-      <div class="profile-body" id="profileBody"></div>
-    </div>
-
   </div><!-- /page-wrap -->
     </div><!-- /main-content -->
   </div><!-- /page-layout -->
 
+  <!-- ═══ REGISTRATION-REQUIRED POPUP ═══
+       Shown after a successful login/OTP verification if this email has
+       no visa_applications row yet. Blocks access to the dashboard until
+       the applicant completes the Visa Application form. -->
+  <div class="reg-modal-overlay" id="regRequiredModal">
+    <div class="reg-modal">
+      <div class="reg-modal-icon"><i class="fa fa-triangle-exclamation"></i></div>
+      <h3>Registration Not Done</h3>
+      <p>We couldn't find a visa application for this account. Please complete your registration first before accessing your dashboard.</p>
+      <div class="reg-modal-actions">
+        <button class="btn-primary" id="regModalGoBtn"><i class="fa fa-passport"></i> <span>Register Now</span></button>
+        <button class="reg-modal-close" id="regModalCloseBtn">Stay on this page</button>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="i18n-shared.js"></script>
+  <script src="../shared/config.js"></script>
+  <script src="../utils/auth-helper.js"></script>
   <script src="login.js"></script>
 </body>
 </html>
