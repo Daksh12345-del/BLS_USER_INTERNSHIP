@@ -1,9 +1,13 @@
+/* Cross-platform font rendering fix (Mac/Windows consistency) */
+body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+select { -webkit-appearance: none; -moz-appearance: none; appearance: none; }
+
 :root {
   --gray: #6B6B6B; --gold: #C8A951; --dark: #3a3a3a;
   --nav: #4a4a4a; --bg: #f2f2f2; --red: #e74c3c; --green: #27ae60;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: #333; font-size: 14px; min-height: 100vh; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: #333; font-size: 14px; min-height: 100vh; }
 
 /* HEADER */
 .site-header { background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }

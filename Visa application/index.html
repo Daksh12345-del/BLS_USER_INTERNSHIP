@@ -124,7 +124,6 @@
     </div>
 
     <!-- FORM CARD -->
-    <div class="focus-backdrop" id="focusBackdrop"></div>
     <div class="form-card" id="formCard" style="display:none;">
 
       <div class="form-header">
@@ -169,9 +168,6 @@
           <span class="tracker-dot"><i class="fa fa-check-circle"></i></span>
           <span class="tracker-label">Declaration</span>
         </div>
-        <button type="button" class="focus-exit-btn" id="focusExitBtn" title="Show full form">
-          <i class="fa fa-times"></i> <span>Show Full Form</span>
-        </button>
       </div>
 
       <div class="stay-tag-bar" id="stayTagBar">
@@ -606,7 +602,6 @@
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
   <script src="passport-ocr.js"></script>
-  <script src="face-verify.js"></script>
 
   <script src="../shared/country-data.js"></script>
   <script src="script.js"></script>
@@ -637,22 +632,20 @@
     })();
   </script>
 
-  <!-- SECTION TRACKER — FOCUS MODE:
-       Clicking a step shows ONLY that section (everything else — other
-       sections, the stay-tag bar, the progress bar — is hidden). The page
-       itself cannot be scrolled; only the visible section's own content
-       area scrolls if it's taller than the screen. The header + tracker
-       stay fixed on top. Click "Show Full Form" (or the same active step
-       again) to leave focus mode and return to the normal full page. -->
+  <!-- SECTION TRACKER — TAB MODE:
+       Clicking a step shows ONLY that section's fields (like a tab), hiding
+       the other sections completely — no popup, no dialog, no darkened
+       backdrop, and no separate internal scrollbar. The page just uses its
+       own normal scrollbar if a section is ever taller than the screen.
+       The tracker bar itself is sticky (position: sticky in CSS) so it
+       stays pinned right below the header at all times — the user can
+       jump to any other section from anywhere without scrolling up first. -->
   <script>
     (function () {
       var trackerItems = Array.prototype.slice.call(document.querySelectorAll('.tracker-item'));
       var tracker = document.getElementById('sectionTracker');
-      var formCard = document.querySelector('.form-card');
       var formBody = document.querySelector('.form-body');
-      var exitBtn = document.getElementById('focusExitBtn');
-      var backdrop = document.getElementById('focusBackdrop');
-      if (!trackerItems.length || !formCard || !formBody) return;
+      if (!trackerItems.length || !tracker || !formBody) return;
 
       // ── Build a flat, ordered map of {sectionId -> [elements]} ──
       // section-labels for Passport/Travel/Documents/Account/Declaration
@@ -687,18 +680,10 @@
       }
       walk(formBody.children);
 
-      var focusActive = false;
-
       function showOnly(id) {
         order.forEach(function (sectionId) {
           var display = (sectionId === id) ? '' : 'none';
           groups[sectionId].forEach(function (el) { el.style.display = display; });
-        });
-      }
-
-      function showAll() {
-        order.forEach(function (sectionId) {
-          groups[sectionId].forEach(function (el) { el.style.display = ''; });
         });
       }
 
@@ -708,45 +693,31 @@
         });
       }
 
-      function enterFocus(id) {
-        focusActive = true;
-        document.documentElement.classList.add('gvs-focus-mode');
-        document.body.classList.add('gvs-focus-mode');
-        formCard.classList.add('gvs-focus-mode');
-        tracker.classList.add('gvs-focus-mode');
-        if (backdrop) backdrop.classList.add('gvs-focus-mode');
-        showOnly(id);
-        setActive(id);
-        formBody.scrollTop = 0;
+      // Bring the sticky tracker (and the now-visible section right under
+      // it) into view without leaving any extra scroll gap or hidden gap.
+      function alignToTracker() {
+        var headerH = parseInt(
+          getComputedStyle(document.documentElement).getPropertyValue('--header-h')
+        ) || 0;
+        var y = tracker.getBoundingClientRect().top + window.scrollY - headerH;
+        window.scrollTo({ top: Math.max(y, 0), behavior: 'smooth' });
       }
-
-      function exitFocus() {
-        focusActive = false;
-        document.documentElement.classList.remove('gvs-focus-mode');
-        document.body.classList.remove('gvs-focus-mode');
-        formCard.classList.remove('gvs-focus-mode');
-        tracker.classList.remove('gvs-focus-mode');
-        if (backdrop) backdrop.classList.remove('gvs-focus-mode');
-        showAll();
-        setActive(null);
-      }
-
-      if (backdrop) backdrop.addEventListener('click', exitFocus);
 
       trackerItems.forEach(function (item) {
         item.addEventListener('click', function () {
           var id = item.getAttribute('data-target');
           if (!groups[id]) return;
-          if (focusActive && item.classList.contains('active')) {
-            // Clicking the already-open step again closes focus mode.
-            exitFocus();
-          } else {
-            enterFocus(id);
-          }
+          showOnly(id);
+          setActive(id);
+          alignToTracker();
         });
       });
 
-      if (exitBtn) exitBtn.addEventListener('click', exitFocus);
+      // Show the first section by default when the form first opens.
+      if (order.length) {
+        showOnly(order[0]);
+        setActive(order[0]);
+      }
     })();
   </script>
 </body>
