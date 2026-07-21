@@ -30,7 +30,7 @@ DASHBOARD_URL_FRAGMENT = "dashboard/dashboard.html"
 # test_login_success.py jaisa hi hardcoded test account — agar tumhare
 # paas session_data.json mein email/password already hai toh wahi use
 # kar lo, warna neeche wale defaults chalenge.
-DEFAULT_EMAIL = "gradewallah@gmail.com"
+DEFAULT_EMAIL = "gradewise69@gmail.com"
 DEFAULT_PASSWORD = "K9WdA6fueCjUspL"
 
 
